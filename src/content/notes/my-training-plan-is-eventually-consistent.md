@@ -26,7 +26,7 @@ planned week
    ↓
 Tuesday:   short, poor sleep
    ↓
-Wednesday: a hamstring a little more noticeable
+Wednesday: hamstring a little more noticeable
    ↓
 Thursday:  more fatigue than the load explains
    ↓
@@ -211,7 +211,7 @@ A few of the rules that fall out of it:
 - **A positive signal doesn't add training.** Feeling fresh is not a reason to add unplanned work. The asymmetry is deliberate: it's much easier to recover from training I didn't do than from training I did.
 - **A known injury has a standing rule.** A niggling hamstring gets one rule, decided in advance, rather than being renegotiated every morning against HRV.
 
-More sensor data doesn't solve any of this. The hardest part isn't collecting more state. It's deciding which state gets to win when the replicas disagree.
+More sensor data doesn't solve any of this. The hardest part isn't collecting more state. It's deciding which signal gets to win when the evidence disagrees.
 
 ## Controllers can destabilize the system
 
@@ -236,7 +236,7 @@ The coach is a feedback controller with delayed, noisy measurements, so it needs
 - **Bounded steps.** One major lever per decision, each with a small maximum. Reversing direction needs a stated reason and new evidence.
 - **Explicit exceptions.** Safety signals bypass all of the above. A cough doesn't wait out a cooldown.
 
-The policy also bans two simple rules that look like control but aren't: a universal 10% weekly increase, and a fixed acute-to-chronic workload threshold. Both answer every situation with the same gain. And it names the failure mode directly: avoid both always-push and always-reduce decisions.
+Simple universal rules are a different failure mode: they apply the same control response regardless of the state of the athlete. The policy puts the aim plainly: avoid both always-push and always-reduce decisions.
 
 ## Who is allowed to change the desired state?
 
