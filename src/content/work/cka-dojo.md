@@ -18,13 +18,20 @@ Every exercise starts a scenario, prints a task and then steps aside. When you r
 
 ```
 $ dojo learn services
-
 Services learning path
-·  1  Follow           services-follow
-🔒 2  Build            services-build
-🔒 3  Inspect          services-inspect
-🔒 4  Fix, guided      services-guided-selector-fix
-🔒 5  Fix, contextual  services-no-endpoints
+   LEVEL  STAGE            EXERCISE                      TITLE
+   -----  -----            --------                      -----
+✓  0      Learn            mental model                  Services
+·  1      Follow           services-follow               Create and expose a healthy web workload
+🔒  2      Build            services-build                Expose a workload without a recipe
+🔒  3      Inspect          services-inspect              Watch selectors become endpoints
+🔒  4      Fix, guided      services-guided-selector-fix  Repair a known selector mismatch
+🔒  5      Fix, contextual  services-no-endpoints         A Service that does not answer
+·  2      Build            services-nodeport             Expose an application on a fixed node port
+·  5      Fix, contextual  services-target-port          A Service has endpoints but requests fail
+🔒  2      Build            services-types                The other two Service types
+Progress: 0/8 attempted · 0/8 passed · 0/8 mastered
+Legend: · available  ↻ attempted  ✓ passed  ★ mastered  🔒 prerequisites incomplete
 ```
 
 ## A deliberate ladder
