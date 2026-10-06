@@ -1,7 +1,7 @@
 ---
 title: Guarding state-changing MCP tools with preview, apply, and undo
 summary: How I let an agent prepare changes to an external calendar without making every tool call a write, and what the design still leaves open.
-date: 2026-10-06
+date: 2026-08-13
 tags: [MCP, Agents, Python, SQLite]
 ---
 

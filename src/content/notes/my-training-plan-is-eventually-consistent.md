@@ -1,7 +1,7 @@
 ---
 title: My training plan is eventually consistent
 summary: What endurance training taught me about desired state, stale data, reconciliation and human overrides.
-date: 2026-10-06
+date: 2026-09-24
 tags: [Training, Agents, Systems]
 ---
 

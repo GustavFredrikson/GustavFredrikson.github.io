@@ -1,7 +1,7 @@
 ---
 title: Not every model call needs to be an agent turn
 summary: How a small typed decision model gates my five-minute coach poll, what it is not allowed to decide, and how it earns the right to suppress a wake.
-date: 2026-10-06
+date: 2026-09-02
 tags: [Agents, Jev, Python, Evaluation]
 ---
 
