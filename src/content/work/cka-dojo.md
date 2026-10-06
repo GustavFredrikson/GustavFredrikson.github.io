@@ -1,6 +1,6 @@
 ---
 title: cka-dojo
-summary: A local Kubernetes lab that builds real kubeadm clusters, breaks them on purpose and grades whether you repaired the resulting state. Made for practising the Certified Kubernetes Administrator exam.
+summary: A local Kubernetes lab that builds real kubeadm clusters, breaks them on purpose and grades whether you repaired the resulting state. Built for CKA practice.
 year: 2026
 role: Design & development
 tags: [Go, Kubernetes, CLI, Education]

@@ -2,7 +2,7 @@
 export const site = {
   name: 'Gustav Fredrikson',
   // One or two sentences. Shown large on the landing page after the name.
-  intro: 'Software engineer. I build distributed systems, infrastructure, developer tooling and autonomous agents.',
+  intro: 'I build distributed systems, infrastructure, developer tooling and autonomous agents.',
   // Short paragraphs for the About section.
   about: [
     "I'm a software engineer in Stockholm, currently at Irori.",
