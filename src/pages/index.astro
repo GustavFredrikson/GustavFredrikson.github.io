@@ -1,26 +1,46 @@
 ---
-import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
+import WorkTile from '../components/WorkTile.astro';
+import { getWork } from '../lib/work';
+import { site } from '../site';
 
-const work = (await getCollection('work'))
-  .filter((w) => !w.data.draft)
-  .sort((a, b) => b.data.year - a.data.year);
+const work = await getWork();
+const empty = Math.max(0, site.placeholderSlots - work.length);
+const count = String(work.length).padStart(2, '0');
 ---
 <Base>
-  <h1>Gustav Fredrikson</h1>
-  <p class="intro">This site is a work in progress.</p>
+  <section class="hero shell">
+    <h1 class="reveal"><span>{site.name}.</span> <span class="dim">{site.intro}</span></h1>
+    <dl class="facts reveal">
+      <div><dt>Status</dt><dd>Work in progress</dd></div>
+      <div><dt>Contact</dt><dd><a href={`mailto:${site.email}`}>Email</a></dd></div>
+      <div><dt>Elsewhere</dt><dd>{site.links.map((l, i) => <>{i > 0 && ', '}<a href={l.href}>{l.label}</a></>)}</dd></div>
+    </dl>
+  </section>
 
-  {work.length > 0 && (
-    <section>
-      <h2>Work</h2>
-      <ul class="list">
-        {work.map((w) => (
-          <li>
-            <span class="year">{w.data.year}</span>
-            <div><strong>{w.data.title}</strong><span>{w.data.summary}</span></div>
-          </li>
-        ))}
+  <section id="work" class="section shell">
+    <header class="section-head">
+      <h2>Selected work</h2>
+      <span class="count">({count})</span>
+    </header>
+    <div class="grid">
+      {work.map((entry, i) => <WorkTile entry={entry} index={i} />)}
+      {Array.from({ length: empty }, (_, i) => <WorkTile index={work.length + i} />)}
+    </div>
+  </section>
+
+  <section id="about" class="section shell split">
+    <h2>About</h2>
+    <div class="body">{site.about.map((p) => <p>{p}</p>)}</div>
+  </section>
+
+  <section id="contact" class="section shell split">
+    <h2>Contact</h2>
+    <div class="body">
+      <a class="big-link" href={`mailto:${site.email}`}>{site.email}<span aria-hidden="true"> ↗</span></a>
+      <ul class="links">
+        {site.links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
       </ul>
-    </section>
-  )}
+    </div>
+  </section>
 </Base>

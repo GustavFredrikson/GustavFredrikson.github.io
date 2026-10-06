@@ -8,4 +8,6 @@ npm run dev     # local dev server
 npm run build   # static output in dist/
 ```
 
-Portfolio entries: add a Markdown file to `src/content/work/` with `title`, `summary` and `year` in the front matter.
+Site text (intro, about, email, links): `src/site.ts`.
+
+Portfolio entries: add a Markdown file to `src/content/work/` (see `example-project.md`, a draft that only shows in `npm run dev`). Each file gets its own page at `/work/<file-name>/`. Images go in `src/assets/work/`.
