@@ -90,28 +90,54 @@ h1, h2, h3, p, dl, dd { margin: 0; }
 .header-end { display: flex; align-items: center; gap: clamp(1rem, 3vw, 2rem); }
 
 .theme-toggle {
-  display: grid;
-  place-items: center;
-  width: 2rem;
-  height: 2rem;
-  margin: -0.25rem -0.5rem -0.25rem 0;
-  padding: 0;
-  border: 0;
-  border-radius: 50%;
-  background: none;
+  --knob: 1.125rem;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 2.75rem;
+  height: 1.5rem;
+  padding: 0 0.3125rem; /* centres each icon on the knob */
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
   color: var(--dim);
   cursor: pointer;
-  transition: color 0.2s var(--ease);
+  transition: border-color 0.2s var(--ease), background-color 0.2s var(--ease);
 }
-.theme-toggle:hover { color: var(--ink); }
+.theme-toggle:hover { border-color: var(--dim); }
+.theme-toggle:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 :root:not([data-theme]) .theme-toggle { visibility: hidden; } /* no JS, no toggle */
-.theme-toggle:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
-.theme-toggle svg { width: 1.0625rem; height: 1.0625rem; transition: transform 0.5s var(--ease); }
-.theme-toggle:hover svg { transform: rotate(-20deg); }
-/* Show the icon for the theme a click switches to. */
-.theme-toggle .moon { display: none; }
-:root[data-theme='light'] .theme-toggle .sun { display: none; }
-:root[data-theme='light'] .theme-toggle .moon { display: block; }
+
+/* The knob sits under the active theme's icon: sun on the left, moon on the right. */
+.theme-toggle::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 2px;
+  width: var(--knob);
+  height: var(--knob);
+  margin-top: calc(var(--knob) / -2);
+  border-radius: 50%;
+  background: var(--ink);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  transition: transform 0.45s var(--ease), background-color 0.2s var(--ease);
+}
+:root[data-theme='dark'] .theme-toggle::before { transform: translateX(calc(2.75rem - 2px - var(--knob) - 4px)); }
+
+.theme-toggle svg {
+  position: relative;
+  width: 0.75rem;
+  height: 0.75rem;
+  transition: color 0.3s var(--ease), transform 0.45s var(--ease);
+}
+:root[data-theme='light'] .theme-toggle .sun,
+:root[data-theme='dark'] .theme-toggle .moon { color: var(--bg); }
+:root[data-theme='light'] .theme-toggle .moon { transform: rotate(-30deg); }
+:root[data-theme='dark'] .theme-toggle .sun { transform: rotate(-90deg); }
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle::before, .theme-toggle svg { transition: none; }
+}
 
 .site-footer {
   display: flex;
