@@ -12,5 +12,6 @@ export const site = {
   email: 'gustavfredrikson@gmail.com',
   links: [
     { label: 'GitHub', href: 'https://github.com/GustavFredrikson' },
+    { label: 'LinkedIn', href: 'https://www.linkedin.com/in/gustav-fredrikson' },
   ],
 };
