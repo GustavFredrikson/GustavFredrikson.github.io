@@ -7,7 +7,7 @@ export const site = {
   about: [
     'A proper introduction is on its way. Until then, this space is a placeholder for who I am, what I work on and what I care about.',
   ],
-  email: 'gustavfredrikson98@gmail.com',
+  email: 'gustavfredrikson@gmail.com',
   links: [
     { label: 'GitHub', href: 'https://github.com/GustavFredrikson' },
   ],
