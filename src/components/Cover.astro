@@ -1,0 +1,18 @@
+---
+import { Image, getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+// A cover image with an optional dark-mode variant, swapped by the browser
+// through prefers-color-scheme.
+interface Props { src: ImageMetadata; dark?: ImageMetadata; widths: number[]; sizes: string; class?: string }
+const { src, dark, widths, sizes, class: className } = Astro.props;
+const darkImage = dark && (await getImage({ src: dark, widths, sizes }));
+---
+{darkImage ? (
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset={darkImage.srcSet.attribute} sizes={sizes} />
+    <Image class={className} src={src} alt="" widths={widths} sizes={sizes} />
+  </picture>
+) : (
+  <Image class={className} src={src} alt="" widths={widths} sizes={sizes} />
+)}

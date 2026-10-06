@@ -161,6 +161,7 @@ h1, h2, h3, p, dl, dd { margin: 0; }
   background: var(--surface);
   border-radius: 4px;
 }
+.tile-media picture { display: block; height: 100%; }
 .tile-media img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.8s var(--ease); }
 a.tile:hover .tile-media img { transform: scale(1.025); }
 .tile-mark {
@@ -218,6 +219,7 @@ a.tile:hover .tile-mark { transform: translateY(-0.25rem); opacity: 0.8; }
 .prose code { font-size: 0.9em; background: var(--surface); padding: 0.1em 0.35em; border-radius: 3px; }
 .prose pre { overflow-x: auto; background: var(--surface); padding: 1rem 1.25rem; border-radius: 4px; font-size: 0.875rem; line-height: 1.6; }
 .prose pre code { font-size: inherit; background: none; padding: 0; border-radius: 0; }
+.prose pre .wide { display: inline-block; width: 2ch; }
 @media (min-width: 64rem) {
   .project .prose, .page .prose { margin-left: calc((100% - 0px) / 3 + var(--gutter) / 3); }
 }
