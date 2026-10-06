@@ -14,7 +14,7 @@ coverDark: ../../assets/work/garak-langchain-serve-dark.png
 
 ## The gap
 
-Many LLM applications aren't just a model. They're chains: a retriever, a prompt template and a model, deployed together with [LangChain Serve](https://github.com/langchain-ai/langserve) (LangServe) as an HTTP API. garak could scan the model underneath, but not the application people actually ship, where the retrieval and prompting change how it behaves.
+Many LLM applications aren't just a model. They're chains: a retriever, a prompt template and a model, deployed together with [LangChain Serve](https://github.com/langchain-ai/langserve) (LangServe) as an HTTP API. garak could scan the model underneath, but not the application people actually ship, where the retrieval and prompting change how it behaves. I ran into this while red-teaming a guarded banking chatbot for [my master's thesis](/work/llm-safeguards-thesis/).
 
 ## What I added
 
