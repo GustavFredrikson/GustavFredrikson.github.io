@@ -1,5 +1,5 @@
 ---
-title: NVIDIA/garak
+title: LangServe support for NVIDIA/garak
 summary: An open-source contribution to NVIDIA's garak, the LLM vulnerability scanner. It lets garak probe any model or RAG chain deployed behind a LangChain Serve endpoint.
 year: 2024
 role: Open-source contributor

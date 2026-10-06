@@ -2,26 +2,19 @@
 import Cover from './Cover.astro';
 import type { CollectionEntry } from 'astro:content';
 
-interface Props { entry?: CollectionEntry<'work'>; index: number }
+interface Props { entry: CollectionEntry<'work'>; index: number }
 const { entry, index } = Astro.props;
 const n = String(index + 1).padStart(2, '0');
 ---
-{entry ? (
-  <a class="tile" href={`/work/${entry.id}/`}>
-    <div class="tile-media">
-      {entry.data.cover
-        ? <Cover src={entry.data.cover} dark={entry.data.coverDark} widths={[640, 1040, 1400]} sizes="(min-width: 50rem) 50vw, 100vw" />
-        : <span class="tile-mark">{n}</span>}
-    </div>
-    <div class="tile-meta">
-      <h3>{entry.data.title}{entry.data.draft && <em> (draft)</em>}</h3>
-      <span class="tile-year">{entry.data.year}</span>
-    </div>
-    <p>{entry.data.summary}</p>
-  </a>
-) : (
-  <div class="tile is-empty" aria-hidden="true">
-    <div class="tile-media"><span class="tile-mark">{n}</span></div>
-    <div class="tile-meta"><h3>Coming soon</h3><span class="tile-year">—</span></div>
+<a class="tile" href={`/work/${entry.id}/`}>
+  <div class="tile-media">
+    {entry.data.cover
+      ? <Cover src={entry.data.cover} dark={entry.data.coverDark} widths={[640, 1040, 1400]} sizes="(min-width: 50rem) 50vw, 100vw" />
+      : <span class="tile-mark">{n}</span>}
   </div>
-)}
+  <div class="tile-meta">
+    <h3>{entry.data.title}{entry.data.draft && <em> (draft)</em>}</h3>
+    <span class="tile-year">{entry.data.year}</span>
+  </div>
+  <p>{entry.data.summary}</p>
+</a>

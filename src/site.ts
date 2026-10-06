@@ -2,15 +2,15 @@
 export const site = {
   name: 'Gustav Fredrikson',
   // One or two sentences. Shown large on the landing page after the name.
-  intro: 'Portfolio in progress. Selected work, experiments and notes will be collected here.',
+  intro: 'Software engineer. I build distributed systems, infrastructure, developer tooling and autonomous agents.',
   // Short paragraphs for the About section.
   about: [
-    'A proper introduction is on its way. Until then, this space is a placeholder for who I am, what I work on and what I care about.',
+    "I'm a software engineer in Stockholm, currently at Irori.",
+    "My work and side projects mostly sit around distributed systems, platform engineering and AI systems. I'm most interested in systems that have to keep state, recover from failure and run with increasing autonomy.",
+    'I studied Engineering Physics at Uppsala University, where my master’s thesis looked at safeguarding LLM applications in financial services.',
   ],
   email: 'gustavfredrikson@gmail.com',
   links: [
     { label: 'GitHub', href: 'https://github.com/GustavFredrikson' },
   ],
-  // Placeholder tiles shown in the work grid until real projects exist.
-  placeholderSlots: 4,
 };

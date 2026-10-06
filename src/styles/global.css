@@ -5,7 +5,6 @@
   --ink: #141414;
   --dim: #75756f;
   --line: #d8d8d3;
-  --hatch: rgba(20, 20, 20, 0.06);
 
   --font: 'Schibsted Grotesk Variable', system-ui, sans-serif;
   --gutter: clamp(1.25rem, 4vw, 3rem);
@@ -21,7 +20,6 @@
     --ink: #ededea;
     --dim: #8b8b84;
     --line: #2b2b28;
-    --hatch: rgba(237, 237, 234, 0.05);
   }
 }
 :root[data-theme='dark'] {
@@ -30,7 +28,6 @@
   --ink: #ededea;
   --dim: #8b8b84;
   --line: #2b2b28;
-  --hatch: rgba(237, 237, 234, 0.05);
   color-scheme: dark;
 }
 :root[data-theme='light'] { color-scheme: light; }
@@ -184,7 +181,6 @@ h1, h2, h3, p, dl, dd { margin: 0; }
   margin-bottom: 1.5rem;
   border-bottom: 1px solid var(--line);
 }
-.count { color: var(--dim); font-size: 0.9375rem; font-variant-numeric: tabular-nums; }
 
 .split {
   display: grid;
@@ -203,10 +199,6 @@ h1, h2, h3, p, dl, dd { margin: 0; }
   .split .body { padding-top: 0.8rem; }
 }
 
-.big-link { font-size: clamp(1.4rem, 3.4vw, 2.75rem); letter-spacing: -0.03em; line-height: 1.15; overflow-wrap: break-word; }
-@media (min-width: 50rem) { .big-link { white-space: nowrap; font-size: clamp(1.4rem, 2.9vw, 2.5rem); } }
-.links { list-style: none; padding: 0; margin: 1.5rem 0 0; display: flex; gap: 1.5rem; font-size: 1rem; color: var(--dim); }
-.links a:hover { color: var(--ink); }
 
 /* ---------- Work grid ---------- */
 .grid {
@@ -241,16 +233,6 @@ a.tile:hover .tile-media img { transform: scale(1.025); }
   transition: transform 0.6s var(--ease), opacity 0.6s var(--ease);
 }
 a.tile:hover .tile-mark { transform: translateY(-0.25rem); opacity: 0.8; }
-
-.is-empty .tile-media {
-  background:
-    repeating-linear-gradient(-45deg, var(--hatch) 0 1px, transparent 1px 10px),
-    var(--surface);
-}
-.is-empty .tile-media { aspect-ratio: 3 / 2; }
-.is-empty .tile-mark { opacity: 0.3; }
-@media (max-width: 49.99rem) { .grid .is-empty:nth-child(n + 3) { display: none; } }
-.is-empty h3, .is-empty .tile-year { color: var(--dim); }
 
 .tile-meta { display: flex; justify-content: space-between; gap: 1rem; margin-top: 0.9rem; }
 .tile h3 { font-size: 1.0625rem; font-weight: 500; letter-spacing: -0.01em; }
