@@ -1,0 +1,26 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+
+const work = (await getCollection('work'))
+  .filter((w) => !w.data.draft)
+  .sort((a, b) => b.data.year - a.data.year);
+---
+<Base>
+  <h1>Gustav Fredrikson</h1>
+  <p class="intro">This site is a work in progress.</p>
+
+  {work.length > 0 && (
+    <section>
+      <h2>Work</h2>
+      <ul class="list">
+        {work.map((w) => (
+          <li>
+            <span class="year">{w.data.year}</span>
+            <div><strong>{w.data.title}</strong><span>{w.data.summary}</span></div>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+</Base>
