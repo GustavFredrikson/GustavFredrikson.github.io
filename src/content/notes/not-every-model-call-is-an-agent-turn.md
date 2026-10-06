@@ -17,7 +17,19 @@ An agent turn is open-ended: it reads context, plans, calls tools and writes pro
 - **choice**: one option from a list I supply, with a probability per option.
 - **score**: an ordinal on a fixed five-level scale, normalized to [0, 1].
 
-There's no generated text anywhere. Even when a route means "ask me something", Jev can only pick one of a few fixed question templates by signal category. It never writes the question.
+There's no generated text anywhere. Even when a route means "ask me something", Jev can only pick one of a few fixed question templates. It never writes the question.
+
+## Three layers, not two
+
+That gives the system three layers, and each one answers a different kind of question:
+
+| Layer | Good at |
+|---|---|
+| Deterministic code | invariants, permissions, safety, freshness, writes |
+| Jev | bounded semantic classification and routing |
+| Agent | open-ended synthesis, planning, tool use |
+
+Most of the design work is deciding which layer owns what. The cheap layer in the middle exists so the expensive one runs less often. It must not take over what the deterministic layer is responsible for.
 
 ## The boundary
 
@@ -43,15 +55,15 @@ A malformed request raises, because that's an integration bug I want to see. Eve
 
 ## The training-watch gate
 
-The poll's existing deterministic logic decides first. Its adapter, `jev_coach_gate.py`, only lets Jev judge two trigger types, `open_loop_due` and `week_shape_drift`. Everything else (a new activity, a missed session, a wellness shift, the morning check-in, stale data, and anything it doesn't recognize) goes to the coach unconditionally.
+The poll's existing deterministic logic decides first. Only two trigger types are allowed to reach Jev at all. Everything else (a new activity, a missed session, a wellness shift, anything unrecognized) goes to the coach unconditionally.
 
-For the two gateable triggers, the order inside the gate is:
+For those two, the gate runs in this order:
 
-1. **Deterministic escalation.** A fixed regex over declared symptoms (chest pain, fainting, sharp pain, fever, injury language and so on) or a hard-constraint breach sends the wake to the coach. Jev isn't consulted and the feature flag doesn't matter.
-2. **Fingerprint reuse.** A SHA-256 over the semantic state (magnitudes bucketed to 0.1, normalized summary text, symptoms), excluding timestamps. An identical fingerprint within 24 hours reuses the previous Jev answer for zero tokens, then re-resolves it under the current config. Escalation is re-checked on every poll and never reused.
-3. **Bounded Jev evaluation.** Two questions over one state, in one request: *could this change plausibly alter the next coaching decision?* (boolean) and *which route best matches the required response?* (choice).
-4. **Confidence, allowlist and rollout gates.** Cheap routes only count if suppression is enabled, the route is on the allowlist, confidence is at least 0.90, and the rollout gate (below) is open. Otherwise the route is raised to at least `ask_for_subjective_input`. A "not material" answer can only lead to `ignore` at the same 0.90 bar.
-5. **Multi-signal floor.** Per-category magnitudes are combined with a noisy-OR, `1 − ∏(1 − weight × magnitude)`. Several individually weak signals can cross 0.6 together even if none would alone, and the route is then raised to a floor.
+1. **Deterministic escalation.** Hard-coded high-risk symptom categories and explicit constraint breaches bypass Jev entirely.
+2. **Reuse.** If the semantic state is identical to a recent one (a hash that ignores timestamps), the earlier answer is reused at zero token cost and re-resolved under the current config.
+3. **Jev.** Two questions over one state: *could this change plausibly alter the next coaching decision?* (boolean) and *which route best matches the required response?* (choice).
+4. **Policy.** A cheap route only counts if suppression is on, the route is on an allowlist, confidence is at least 0.90, and the rollout gate (below) is open. Otherwise the route is raised to at least "ask me a fixed question".
+5. **Multi-signal floor.** Several individually weak signals are combined, and if together they cross a threshold the route is raised no matter what Jev said.
 
 The routes, cheapest first:
 
@@ -60,9 +72,7 @@ ignore < persist_only < ask_for_subjective_input
        < next_training_brief < invoke_training_agent
 ```
 
-Only `ignore` and `persist_only` can skip the coach, and only on a live, recorded, effective decision. A skipped wake doesn't update the last-wake record, so the daily dead-man's-switch trigger still reaches the coach.
-
-Every failure path in the gate resolves the same way: run the full coach, as before. The caller only acts on a cheap route when the command exits 0 and reports success. A non-zero exit, unparsable output or a timeout all mean "invoke the agent".
+Only `ignore` and `persist_only` can skip the coach. Every failure path resolves the same way: run the full coach, as before. The caller acts on a cheap route only when the gate exits 0 and reports success, so a crash, a timeout or unparsable output all mean "invoke the agent". Skipped wakes also don't update the poll's last-wake record, so the daily dead-man's-switch trigger still reaches the coach.
 
 ## A failure that wasn't about the model
 
@@ -70,25 +80,27 @@ For a while most Jev calls took the fallback. The poll runs from cron, and cron 
 
 The fix, in `_resolve_env_api_key()`, looks in the environment first and then falls back to the gateway credential file. It resolves into a private dict instead of `os.environ`, so the key isn't exported to every later subprocess.
 
-It also changed what I check. "The feature works" and "the model is actually participating" are different questions, and the second one needs its own metric. The rollout gate now includes a fallback rate and a recent-window "provider degraded" check for this reason.
+The lesson is that a correct fallback can hide a broken integration, so fallback rate is itself a health metric. "The feature works" and "the model is actually participating" are different questions. The rollout gate now includes a fallback rate and a recent-window "provider degraded" check for this reason.
 
 ## Authority is earned in stages
 
-Suppression is off by default, and getting it on goes through stages:
+A model doesn't get authority because it exists. It gets authority because its observed performance on my traffic justifies it.
 
-- **A, measurement.** Jev is enabled and answers live traffic, but `suppression_enabled` is false. Every evaluation is recorded (route, probabilities, model version, tokens) in a hash-chained event log, and I attach what the coach actually did with `record-actual`. Quiet wakes that nothing escalated can be labelled in bulk with `label-quiet`, as an explicit opt-in. A deterministic escalation within 24 hours auto-labels earlier suppressions as false negatives.
+Suppression is off by default, and turning it on goes through stages:
+
+- **A, measurement.** Jev is enabled and answers live traffic, but suppression is off. Every evaluation is recorded (route, probabilities, model version, tokens) in a hash-chained event log, and I attach what the coach actually did. A later deterministic escalation automatically labels earlier suppressions as false negatives.
 - **B, guarded suppression.** Only `ignore` and `persist_only` may end a wake, and only while the gate holds.
-- **C, widen the allowlist.** `next_training_brief`, then `ask_for_subjective_input`, which additionally needs a fixed template to exist. Only when the labels justify it.
+- **C, widen the allowlist.** The next-brief and ask routes, only when the labels justify it.
 
-The gate itself fails closed. Within a 30-day window and for the *current Jev model version only*, it requires at least 30 labelled evaluations, at least 15 of them cases Jev would have suppressed at the current threshold, zero false negatives, a weighted miss score of at most 0.15, a fallback rate of at most 0.2, and a non-degraded provider. False negatives are weighted 3× in the miss score, since under-escalation is the failure this gate must never quietly optimize for. Labels are scored against the route Jev *would* have taken with suppression on, which is what lets stage A traffic count as calibration data. Nothing loosens a threshold automatically, and a new model version starts the evidence count over.
+The gate fails closed. Within a 30-day window, and for the *current Jev model version only*, it requires at least 30 labelled evaluations, at least 15 of them cases Jev would have suppressed at the current threshold, zero false negatives, a weighted miss score of at most 0.15, a fallback rate of at most 0.2, and a non-degraded provider. False negatives are weighted 3× in the miss score, since under-escalation is the failure this gate must never quietly optimize for. Labels are scored against the route Jev *would* have taken with suppression on, which is what lets stage A traffic count as calibration data. Nothing loosens a threshold automatically, and a new model version starts the evidence count over.
 
 ## One request, several questions
 
-The two training-watch questions don't cost two HTTP calls. `evaluate_many()` takes several typed requests over one shared state and sends them as one request with a named question map. It insists the contexts are identical and the question ids unique, and each question keeps its own fallback, confidence threshold, shadow mode and telemetry row. The same path is used for the semantic watches and admin triage. The state is the expensive part of the prompt, so it's paid for once.
+The two training-watch questions don't cost two HTTP calls. `evaluate_many()` takes several typed requests over one shared state and sends them as one request with a named question map. It insists the contexts are identical and the question ids unique, and each question keeps its own fallback, confidence threshold and telemetry row. The state is the expensive part of the prompt, so it's paid for once.
 
-## What I think this is good for
+## Where this fits
 
-Jev decides things that are bounded, semantic and cheap to get slightly wrong: materiality, routing, relevance, triage, novelty. It doesn't decide permissions, safety, writes, idempotency or whether data is fresh, and it's never the record of what's true. Those stay in ordinary code (for writes, the [preview/apply/undo workflow](/notes/guarded-mcp-writes/) from the previous note).
+Jev handles judgments that are bounded, semantic, and recoverable through a conservative fallback: materiality, routing, relevance, triage, novelty. Uncertainty there can be contained by deterministic policy and escalation. It doesn't decide permissions, safety, writes, idempotency or whether data is fresh, and it's never the record of what's true. Those stay in ordinary code (for writes, the [preview/apply/undo workflow](/notes/guarded-mcp-writes/) from the previous note).
 
 ## Limits of this note
 
