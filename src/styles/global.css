@@ -161,6 +161,7 @@ h1, h2, h3, p, dl, dd { margin: 0; }
   background: var(--surface);
   border-radius: 4px;
 }
+.tile-media picture { display: block; height: 100%; }
 .tile-media img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.8s var(--ease); }
 a.tile:hover .tile-media img { transform: scale(1.025); }
 .tile-mark {
