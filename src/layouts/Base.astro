@@ -1,0 +1,28 @@
+---
+import '../styles/global.css';
+interface Props { title?: string; description?: string }
+const { title, description = 'Gustav Fredrikson' } = Astro.props;
+const path = Astro.url.pathname;
+const pageTitle = title ? `${title} – Gustav Fredrikson` : 'Gustav Fredrikson';
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <meta name="color-scheme" content="light dark" />
+  </head>
+  <body>
+    <header>
+      <a class="name" href="/">Gustav Fredrikson</a>
+      <nav aria-label="Main">
+        <a href="/" aria-current={path === '/' ? 'page' : undefined}>Home</a>
+        <a href="/privacy/" aria-current={path.startsWith('/privacy') ? 'page' : undefined}>Privacy</a>
+      </nav>
+    </header>
+    <main><slot /></main>
+    <footer>© {new Date().getFullYear()} Gustav Fredrikson</footer>
+  </body>
+</html>
