@@ -1,0 +1,43 @@
+---
+import { Image } from 'astro:assets';
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { getWork } from '../../lib/work';
+
+export async function getStaticPaths() {
+  const work = await getWork();
+  return work.map((entry, i) => ({
+    params: { slug: entry.id },
+    props: { entry, next: work[(i + 1) % work.length] },
+  }));
+}
+
+const { entry, next } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data;
+---
+<Base title={d.title} description={d.summary}>
+  <article class="project shell">
+    <a class="back" href="/#work">← All work</a>
+    <h1 class="reveal">{d.title}</h1>
+    <p class="lede reveal">{d.summary}</p>
+
+    <dl class="facts reveal">
+      <div><dt>Year</dt><dd>{d.year}</dd></div>
+      {d.role && <div><dt>Role</dt><dd>{d.role}</dd></div>}
+      {d.tags.length > 0 && <div><dt>Tags</dt><dd>{d.tags.join(', ')}</dd></div>}
+      {d.link && <div><dt>Link</dt><dd><a href={d.link}>Visit ↗</a></dd></div>}
+    </dl>
+
+    {d.cover && <Image class="cover" src={d.cover} alt="" widths={[800, 1400, 2000]} sizes="100vw" />}
+
+    <div class="prose"><Content /></div>
+
+    {next && next.id !== entry.id && (
+      <a class="next" href={`/work/${next.id}/`}>
+        <span>Next project</span>
+        <strong>{next.data.title} →</strong>
+      </a>
+    )}
+  </article>
+</Base>

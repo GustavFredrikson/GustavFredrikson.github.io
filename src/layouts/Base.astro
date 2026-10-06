@@ -1,9 +1,13 @@
 ---
+import '@fontsource-variable/schibsted-grotesk';
 import '../styles/global.css';
+import { site } from '../site';
+
 interface Props { title?: string; description?: string }
-const { title, description = 'Gustav Fredrikson' } = Astro.props;
-const path = Astro.url.pathname;
-const pageTitle = title ? `${title} – Gustav Fredrikson` : 'Gustav Fredrikson';
+const { title, description = site.intro } = Astro.props;
+const pageTitle = title ? `${title} — ${site.name}` : site.name;
+const onHome = Astro.url.pathname === '/';
+const year = new Date().getFullYear();
 ---
 <!doctype html>
 <html lang="en">
@@ -13,16 +17,27 @@ const pageTitle = title ? `${title} – Gustav Fredrikson` : 'Gustav Fredrikson'
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
     <meta name="color-scheme" content="light dark" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   </head>
   <body>
-    <header>
-      <a class="name" href="/">Gustav Fredrikson</a>
+    <a class="skip" href="#content">Skip to content</a>
+    <header class="site-header shell">
+      <a class="wordmark" href="/">{site.name}</a>
       <nav aria-label="Main">
-        <a href="/" aria-current={path === '/' ? 'page' : undefined}>Home</a>
-        <a href="/privacy/" aria-current={path.startsWith('/privacy') ? 'page' : undefined}>Privacy</a>
+        <a href={onHome ? '#work' : '/#work'}>Work</a>
+        <a href={onHome ? '#about' : '/#about'}>About</a>
+        <a href={onHome ? '#contact' : '/#contact'}>Contact</a>
       </nav>
     </header>
-    <main><slot /></main>
-    <footer>© {new Date().getFullYear()} Gustav Fredrikson</footer>
+
+    <main id="content"><slot /></main>
+
+    <footer class="site-footer shell">
+      <span>© {year} {site.name}</span>
+      <a href="/privacy/">Privacy</a>
+    </footer>
   </body>
 </html>
