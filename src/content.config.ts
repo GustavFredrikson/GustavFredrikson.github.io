@@ -14,6 +14,8 @@ const work = defineCollection({
       role: z.string().optional(),
       tags: z.array(z.string()).default([]),
       cover: image().optional(),
+      // Optional variant shown when the visitor's system is in dark mode.
+      coverDark: image().optional(),
       link: z.string().url().optional(),
       // Lower numbers come first; ties fall back to newest year.
       order: z.number().default(100),

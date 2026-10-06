@@ -1,5 +1,5 @@
 ---
-import { Image } from 'astro:assets';
+import Cover from '../../components/Cover.astro';
 import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import { getWork } from '../../lib/work';
@@ -29,7 +29,7 @@ const d = entry.data;
       {d.link && <div><dt>Link</dt><dd><a href={d.link}>Visit ↗</a></dd></div>}
     </dl>
 
-    {d.cover && <Image class="cover" src={d.cover} alt="" widths={[800, 1400, 2000]} sizes="100vw" />}
+    {d.cover && <Cover class="cover" src={d.cover} dark={d.coverDark} widths={[800, 1400, 2000]} sizes="100vw" />}
 
     <div class="prose"><Content /></div>
 

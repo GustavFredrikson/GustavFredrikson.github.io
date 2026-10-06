@@ -1,5 +1,5 @@
 ---
-import { Image } from 'astro:assets';
+import Cover from './Cover.astro';
 import type { CollectionEntry } from 'astro:content';
 
 interface Props { entry?: CollectionEntry<'work'>; index: number }
@@ -10,7 +10,7 @@ const n = String(index + 1).padStart(2, '0');
   <a class="tile" href={`/work/${entry.id}/`}>
     <div class="tile-media">
       {entry.data.cover
-        ? <Image src={entry.data.cover} alt="" widths={[640, 1040, 1400]} sizes="(min-width: 50rem) 50vw, 100vw" />
+        ? <Cover src={entry.data.cover} dark={entry.data.coverDark} widths={[640, 1040, 1400]} sizes="(min-width: 50rem) 50vw, 100vw" />
         : <span class="tile-mark">{n}</span>}
     </div>
     <div class="tile-meta">

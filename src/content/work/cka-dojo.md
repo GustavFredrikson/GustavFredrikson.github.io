@@ -6,6 +6,8 @@ role: Design & development
 tags: [Go, Kubernetes, CLI, Education]
 link: https://github.com/GustavFredrikson/cka-dojo
 order: 1
+cover: ../../assets/work/cka-dojo.png
+coverDark: ../../assets/work/cka-dojo-dark.png
 ---
 
 Most CKA practice is either reading or clicking through a hosted sandbox that hides the parts of a cluster you most need to understand. I wanted to practise the way the exam works: on a real cluster, from a shell, with no hints about which command to type. So I built `dojo`, a Go CLI that provisions a four-machine Kubernetes cluster in local VMs and turns it into a training ground.
