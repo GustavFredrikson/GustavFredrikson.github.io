@@ -1,0 +1,28 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { getNotes, formatDate } from '../../lib/notes';
+
+export async function getStaticPaths() {
+  const notes = await getNotes();
+  return notes.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data;
+---
+<Base title={d.title} description={d.summary}>
+  <article class="page note shell">
+    <a class="back" href="/notes/">← All notes</a>
+    <h1 class="reveal">{d.title}</h1>
+    <p class="lede reveal">{d.summary}</p>
+
+    <dl class="facts reveal">
+      <div><dt>Date</dt><dd><time datetime={d.date.toISOString().slice(0, 10)}>{formatDate(d.date)}</time></dd></div>
+      {d.tags.length > 0 && <div><dt>Tags</dt><dd>{d.tags.join(', ')}</dd></div>}
+    </dl>
+
+    <div class="prose"><Content /></div>
+  </article>
+</Base>

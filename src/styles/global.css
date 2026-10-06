@@ -85,6 +85,11 @@ h1, h2, h3, p, dl, dd { margin: 0; }
 .site-header nav { display: flex; gap: clamp(1rem, 3vw, 2rem); color: var(--dim); }
 .site-header nav a:hover { color: var(--ink); }
 .header-end { display: flex; align-items: center; gap: clamp(1rem, 3vw, 2rem); }
+.wordmark { white-space: nowrap; }
+@media (max-width: 26rem) {
+  .site-header { font-size: 0.875rem; }
+  .site-header nav, .header-end { gap: 0.75rem; }
+}
 
 .theme-toggle {
   --knob: 1.125rem;
@@ -252,7 +257,7 @@ a.tile:hover .tile-mark { transform: translateY(-0.25rem); opacity: 0.8; }
   text-wrap: balance;
 }
 .lede { margin-top: 1.25rem; max-width: 36ch; color: var(--dim); font-size: clamp(1.15rem, 1.8vw, 1.4rem); line-height: 1.4; letter-spacing: -0.01em; }
-.project .facts { padding-top: 1.25rem; border-top: 1px solid var(--line); max-width: none; }
+.project .facts, .page .facts { padding-top: 1.25rem; border-top: 1px solid var(--line); max-width: none; }
 .cover { width: 100%; margin-top: clamp(2.5rem, 6vw, 4rem); border-radius: 4px; }
 
 .prose { max-width: 40rem; margin-top: clamp(2.5rem, 6vw, 4rem); font-size: 1.0625rem; line-height: 1.7; }
@@ -280,6 +285,19 @@ a.tile:hover .tile-mark { transform: translateY(-0.25rem); opacity: 0.8; }
 .next span { color: var(--dim); font-size: 0.9375rem; }
 .next strong { font-size: clamp(1.75rem, 4vw, 3rem); font-weight: 500; letter-spacing: -0.035em; transition: transform 0.5s var(--ease); }
 .next:hover strong { transform: translateX(0.4rem); }
+
+/* ---------- Notes ---------- */
+.note h1 { font-size: clamp(2.25rem, 5vw, 4rem); line-height: 1.04; letter-spacing: -0.035em; max-width: 20ch; }
+.note-list { list-style: none; margin: clamp(2.5rem, 6vw, 4rem) 0 0; padding: 0; border-top: 1px solid var(--line); }
+.note-list a { display: grid; gap: 0.25rem 1rem; padding: 1.25rem 0; border-bottom: 1px solid var(--line); }
+.note-list h2 { font-size: 1.0625rem; font-weight: 500; letter-spacing: -0.01em; }
+.note-list p { color: var(--dim); max-width: 60ch; }
+.note-list time { color: var(--dim); font-variant-numeric: tabular-nums; }
+.note-list a:hover h2 { text-decoration: underline; text-underline-offset: 0.2em; text-decoration-thickness: 1px; }
+@media (min-width: 50rem) {
+  .note-list a { grid-template-columns: 1fr 3fr; }
+  .note-list time { grid-row: span 2; }
+}
 
 /* ---------- Entrance ---------- */
 @media (prefers-reduced-motion: no-preference) {

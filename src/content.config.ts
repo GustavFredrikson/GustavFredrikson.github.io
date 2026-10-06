@@ -24,4 +24,17 @@ const work = defineCollection({
     }),
 });
 
-export const collections = { work };
+// Technical notes: one Markdown file per note in src/content/notes/.
+// src/content/notes/my-note.md -> /notes/my-note/
+const notes = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/notes' }),
+  schema: z.object({
+    title: z.string(),
+    summary: z.string(),
+    date: z.coerce.date(),
+    tags: z.array(z.string()).default([]),
+    draft: z.boolean().default(false),
+  }),
+});
+
+export const collections = { work, notes };

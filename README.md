@@ -11,3 +11,5 @@ npm run build   # static output in dist/
 Site text (intro, about, email, links): `src/site.ts`.
 
 Portfolio entries: add a Markdown file to `src/content/work/` (see `example-project.md`, a draft that only shows in `npm run dev`). Each file gets its own page at `/work/<file-name>/`. Images go in `src/assets/work/`.
+
+Notes: add a Markdown file to `src/content/notes/` with `title`, `summary` and `date` front matter. Each gets a page at `/notes/<file-name>/` and is listed at `/notes/`.

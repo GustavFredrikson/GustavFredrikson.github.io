@@ -1,0 +1,23 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getNotes, formatDate } from '../../lib/notes';
+
+const notes = await getNotes();
+---
+<Base title="Notes" description="Technical notes on systems I've built.">
+  <article class="page note shell">
+    <h1 class="reveal">Notes</h1>
+    <p class="lede reveal">Technical notes on systems I've built and the decisions behind them.</p>
+    <ul class="note-list">
+      {notes.map((n) => (
+        <li>
+          <a href={`/notes/${n.id}/`}>
+            <time datetime={n.data.date.toISOString().slice(0, 10)}>{formatDate(n.data.date)}</time>
+            <h2>{n.data.title}{n.data.draft && ' (draft)'}</h2>
+            <p>{n.data.summary}</p>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </article>
+</Base>
