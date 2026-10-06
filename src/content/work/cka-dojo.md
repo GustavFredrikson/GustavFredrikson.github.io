@@ -16,23 +16,23 @@ Most CKA practice is either reading or clicking through a hosted sandbox that hi
 
 Every exercise starts a scenario, prints a task and then steps aside. When you run `dojo grade`, it inspects the cluster itself — Pods, endpoints, policies, certificates, static manifests, systemd units — and checks the result against the requirements. It doesn't matter whether you used `kubectl edit`, a YAML file or Helm, only whether the cluster ends up right.
 
-```
-$ dojo learn services
+<!-- Real `dojo learn` output. Each 🔒 is wrapped in .wide, which global.css pins
+     to two columns as a terminal draws it, so the columns stay aligned. -->
+<pre><code>$ dojo learn services
 Services learning path
-   LEVEL  STAGE            EXERCISE                      TITLE
-   -----  -----            --------                      -----
-✓  0      Learn            mental model                  Services
-·  1      Follow           services-follow               Create and expose a healthy web workload
-🔒  2      Build            services-build                Expose a workload without a recipe
-🔒  3      Inspect          services-inspect              Watch selectors become endpoints
-🔒  4      Fix, guided      services-guided-selector-fix  Repair a known selector mismatch
-🔒  5      Fix, contextual  services-no-endpoints         A Service that does not answer
-·  2      Build            services-nodeport             Expose an application on a fixed node port
-·  5      Fix, contextual  services-target-port          A Service has endpoints but requests fail
-🔒  2      Build            services-types                The other two Service types
+    LEVEL  STAGE            EXERCISE                      TITLE
+    -----  -----            --------                      -----
+✓   0      Learn            mental model                  Services
+·   1      Follow           services-follow               Create and expose a healthy web workload
+<span class="wide">🔒</span>  2      Build            services-build                Expose a workload without a recipe
+<span class="wide">🔒</span>  3      Inspect          services-inspect              Watch selectors become endpoints
+<span class="wide">🔒</span>  4      Fix, guided      services-guided-selector-fix  Repair a known selector mismatch
+<span class="wide">🔒</span>  5      Fix, contextual  services-no-endpoints         A Service that does not answer
+·   2      Build            services-nodeport             Expose an application on a fixed node port
+·   5      Fix, contextual  services-target-port          A Service has endpoints but requests fail
+<span class="wide">🔒</span>  2      Build            services-types                The other two Service types
 Progress: 0/8 attempted · 0/8 passed · 0/8 mastered
-Legend: · available  ↻ attempted  ✓ passed  ★ mastered  🔒 prerequisites incomplete
-```
+Legend: · available  ↻ attempted  ✓ passed  ★ mastered  <span class="wide">🔒</span> prerequisites incomplete</code></pre>
 
 ## A deliberate ladder
 
