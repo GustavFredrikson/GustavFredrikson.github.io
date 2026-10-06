@@ -1,6 +1,6 @@
 # gustavfredrikson.github.io
 
-Personal site, built with [Astro](https://astro.build) and deployed to GitHub Pages by `.github/workflows/deploy.yml` on every push to `main`.
+Personal site at [gustavfredrikson.se](https://gustavfredrikson.se), built with [Astro](https://astro.build) and deployed to GitHub Pages by `.github/workflows/deploy.yml` on every push to `main`. The custom domain is set in the repo's Pages settings; DNS is managed at Inleed (apex A/AAAA records to GitHub Pages, `www` CNAME to `gustavfredrikson.github.io`).
 
 ```sh
 npm install
