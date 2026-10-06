@@ -12,8 +12,10 @@
   --max: 82rem;
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
 }
+/* Dark tokens apply when the system asks for dark (unless the visitor picked
+   light with the toggle), or when the visitor picked dark. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']) {
     --bg: #111110;
     --surface: #1b1b19;
     --ink: #ededea;
@@ -22,6 +24,16 @@
     --hatch: rgba(237, 237, 234, 0.05);
   }
 }
+:root[data-theme='dark'] {
+  --bg: #111110;
+  --surface: #1b1b19;
+  --ink: #ededea;
+  --dim: #8b8b84;
+  --line: #2b2b28;
+  --hatch: rgba(237, 237, 234, 0.05);
+  color-scheme: dark;
+}
+:root[data-theme='light'] { color-scheme: light; }
 
 /* ---------- Base ---------- */
 *, *::before, *::after { box-sizing: border-box; }
@@ -75,6 +87,31 @@ h1, h2, h3, p, dl, dd { margin: 0; }
 .wordmark { font-weight: 600; letter-spacing: -0.01em; }
 .site-header nav { display: flex; gap: clamp(1rem, 3vw, 2rem); color: var(--dim); }
 .site-header nav a:hover { color: var(--ink); }
+.header-end { display: flex; align-items: center; gap: clamp(1rem, 3vw, 2rem); }
+
+.theme-toggle {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  margin: -0.25rem -0.5rem -0.25rem 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--dim);
+  cursor: pointer;
+  transition: color 0.2s var(--ease);
+}
+.theme-toggle:hover { color: var(--ink); }
+:root:not([data-theme]) .theme-toggle { visibility: hidden; } /* no JS, no toggle */
+.theme-toggle:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
+.theme-toggle svg { width: 1.0625rem; height: 1.0625rem; transition: transform 0.5s var(--ease); }
+.theme-toggle:hover svg { transform: rotate(-20deg); }
+/* Show the icon for the theme a click switches to. */
+.theme-toggle .moon { display: none; }
+:root[data-theme='light'] .theme-toggle .sun { display: none; }
+:root[data-theme='light'] .theme-toggle .moon { display: block; }
 
 .site-footer {
   display: flex;
