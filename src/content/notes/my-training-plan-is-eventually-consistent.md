@@ -26,7 +26,7 @@ planned week
    ↓
 Tuesday:   short, poor sleep
    ↓
-Wednesday: hamstring a little more noticeable
+Wednesday: a hamstring a little more noticeable
    ↓
 Thursday:  more fatigue than the load explains
    ↓
@@ -35,23 +35,25 @@ Saturday:  weather moves the long session
 Sunday:    a workout says fitness is better than assumed
 ```
 
-Nothing catastrophic happened. The inputs drifted. At no point that week was the plan synchronized with reality, and it never will be. What I'm actually doing is continuously trying to make
+Nothing catastrophic happened. The inputs drifted, and the plan was never synchronized with reality. What I'm actually doing is continuously trying to make
 
 ```text
 desired training state ≈ actual athlete state
 ```
 
-with some lag that never goes to zero. That's the sense in which the plan is eventually consistent.
+with some lag that never goes to zero.
 
-I run an AI coach on top of my Intervals.icu data, and building it is what forced me to think about this properly. But this note is about training, not the software. The software just made the assumptions impossible to leave implicit.
+This isn't eventual consistency in the formal sense. My body isn't a replicated database, and it never converges once the updates stop, because the updates never stop: the goal moves, the athlete changes, and training itself perturbs the state. But the useful part of the analogy holds. The plan and observed reality are always somewhat out of sync, and the job is to converge toward an objective rather than to enforce every intermediate state.
+
+I run an AI coach on my training data, and building it forced me to make these assumptions explicit. But this note is about training, not the software.
 
 ## The plan has a desired state, and workouts aren't it
 
 The thing I care about isn't `5 × 1 km @ threshold`. That's an action. The desired state is something like:
 
 ```text
-By July 2027 (IRONMAN 70.3 Jönköping):
-- aerobic durability for a 70.3 bike
+By race day next summer:
+- aerobic durability for a long bike leg
 - run durability that survives coming off that bike
 - a swim that's continuous and calm at race rhythm
 - healthy enough to train consistently all year
@@ -60,13 +62,13 @@ By July 2027 (IRONMAN 70.3 Jönköping):
 
 Individual workouts are attempts to move the system toward that state.
 
-If you've used Kubernetes, this is the declarative model. You don't fundamentally care that a container starts at 13:04; you care that the service you declared becomes true, and the controller works out the steps. In the same way, I don't fundamentally care whether I do Thursday's prescribed session. I care whether the adaptation Thursday's session was meant to produce happens.
+If you've used Kubernetes, this is the declarative model. You don't care that a container starts at 13:04; you care that the declared service becomes true. In the same way, I don't fundamentally care whether I do Thursday's session. I care whether the adaptation it was meant to produce happens.
 
-That's a training argument, not just a software one. It's why the coach's policy says to prefer continuity and consistency over completing every session or maximizing weekly hours, and why it separates *key* sessions from *supporting* ones. When something has to give, supporting work is scaled or removed first, because the key sessions carry most of the intended adaptation.
+That's a training argument, not just a software one. It's why my coach separates a few *key* sessions each week from *supporting* ones, and cuts supporting work first when something has to give.
 
 ## The athlete is observed, never read directly
 
-The coach can see a lot: workouts with power, pace and heart rate, Garmin's sleep, HRV and resting heart rate, training-load curves, my answers to short questions about readiness, effort and soreness, and any symptoms I report.
+The coach can see a lot: workouts with power, pace and heart rate, sleep, HRV and resting heart rate from my watch, training-load curves, my answers to short questions about readiness and soreness, and any symptoms I report.
 
 None of these gives it:
 
@@ -76,17 +78,17 @@ athlete.readiness = 0.73
 
 They're noisy proxies. In distributed-systems terms, there are several replicas of my state, and none of them is authoritative. On any given morning all of these can be true at once:
 
-- Garmin thinks recovery is poor.
+- The watch thinks recovery is poor.
 - My legs feel good.
 - HRV is low.
 - Yesterday's session went well.
 - Sleep was bad because of a few beers, not accumulated training fatigue.
 
-The athlete is partially observable. A good coach, human or not, has always worked this way. Writing it down as a system just makes it hard to pretend otherwise.
+The athlete is partially observable. Good coaches have always worked this way; writing it down as a system just makes it hard to pretend otherwise.
 
 ## Every observation is stale
 
-Training decisions run on history. My latest FTP test says what I could do the day I did it. Last night's HRV is already a few hours old when I read it. Fitness metrics like CTL are a 42-day weighted average, so they deliberately carry old information. Even how I feel when I wake up can change after a ten-minute warm-up.
+My latest FTP test says what I could do the day I did it. Fitness metrics like CTL are a 42-day weighted average, so they deliberately carry old information. Even how I feel when I wake up can change after a ten-minute warm-up.
 
 Every training decision is made against a stale replica of the athlete:
 
@@ -94,19 +96,15 @@ Every training decision is made against a stale replica of the athlete:
 actual physiology
    ↓  physiological response
    ↓  sensor measurement
-   ↓  watch → Garmin → Intervals.icu
+   ↓  watch → vendor cloud → training platform
    ↓  ingestion into the coach
    ↓  reasoning
    ↓  next prescription
 ```
 
-Each arrow adds latency and uncertainty, and a few have bitten me:
+Each arrow adds latency and uncertainty, and a few have bitten me. In one two-week stretch the watch data arrived partially synced six times; one morning's resting heart rate read 56 and was really 50 once the rest arrived. Another time a scheduled job ran in the evening instead of the morning, read that morning's wellness, and trimmed a bike session I had already ridden. The coach noticed the ride was already done and reverted its own edit.
 
-- **Sync lag.** In one two-week stretch Garmin delivered partial data six times. One morning's resting heart rate read 56; after the full sync it was 50. A decision made at 06:30 would have used the wrong number.
-- **Acting on old state.** In April a scheduled job ran in the evening instead of the morning, read that morning's wellness, and trimmed a bike session I had already ridden. The coach noticed the ride was already matched to a completed activity and reverted the edit. Net calendar change: zero. Now it checks whether a session has been done before touching it.
-- **Arrival is not quality.** The coach's instructions say plainly that "fresh sleep" must never mean only that Garmin's data arrived. "The data is current" and "I slept well" are different facts that are easy to merge.
-
-So staleness is explicit now. Each source has a maximum age (two days for wellness, two weeks for activities and calendar), and a source is labelled fresh, stale, partial or missing rather than silently trusted. A missing cache is "unavailable", not "empty", because an empty calendar looks exactly like a decision to delete every future workout. My answers to questions expire too: a readiness answer is good for twelve hours. The morning review runs at 06:30 as a provisional read, at 07:15 as the real one, and again at 08:30 if sleep data hadn't arrived. That's a read-repair schedule for a body.
+The fix wasn't faster data. It was naming states that had been blurred together. "The sleep data has arrived" and "I slept well" are different facts. And "missing", "stale" and "empty" are three different states: a calendar the coach failed to read looks exactly like a calendar where every future workout was deleted, so the two must never share a representation. Every source now carries an age and a label, and nothing is silently trusted because it happens to be there.
 
 ## Reconciliation beats scheduling
 
@@ -155,11 +153,13 @@ Here is the whole thing as a picture:
                     └──────────────────────┘
 ```
 
-That doesn't make planning useless. A season still needs structure: general preparation, build, race-specific work, taper, race, recovery. Within that, my coach works in a repeating build, build, transition cycle, with named blocks for what each few weeks are for. That's the intent.
+That doesn't make planning useless. A season still needs structure: general preparation, build, race-specific work, taper, race, recovery. That's the intent.
 
 Periodization describes where the system should be going. Reconciliation decides what to do today to keep it going there.
 
-## Strong consistency would be bad for me
+And most days, reconciliation should decide to do nothing. If the plan is sensible and life is normal, the best action is to execute it. Adaptivity earns its keep at the edges: accumulated fatigue, illness, missed sessions, unexpectedly good adaptation, changed constraints. A controller that modifies the plan every day is probably worse than the static plan it replaced. Adaptive doesn't mean constantly changing.
+
+## Don't replay missed work
 
 Imagine a system that insists reality match the plan:
 
@@ -171,11 +171,11 @@ Tuesday threshold failed
 
 That's often the worst available move. It stacks two hard days, and it treats the calendar, not the adaptation, as the thing that must be true.
 
-Training has perturbations that should simply be absorbed. Miss one session? Often nothing needs to happen. A bad night? Lower today's intensity. Illness? The desired trajectory itself bends for a while. A race costs more than expected? Bring the recovery week forward.
+Training has perturbations that should simply be absorbed. Miss one session, and often nothing needs to happen. Get ill, and the trajectory itself bends for a while.
 
 In my coaching log the phrase "no make-up planned" shows up again and again, and it's correct every time. You don't replay every missed write until the original schedule is restored. The system converges toward the training objective, not toward historical compliance with a calendar.
 
-Eventual consistency also has a cost, and it's worth tracking. This spring, illness and life combined to drop run-threshold work three weeks in a row. Each individual decision was right. The accumulated drift was still real, and the coach flagged it and made threshold a requirement for the following week. Absorbing perturbations is not the same as ignoring them.
+Absorbing perturbations isn't free, though. This spring, illness and life dropped run-threshold work three weeks in a row. Each decision was right, and the accumulated drift was still real; the coach flagged it and made threshold a requirement the following week. Local decisions can all be correct while the cumulative drift becomes a problem, so the drift has to be observed too.
 
 ## Conflict resolution is the hard part
 
@@ -204,29 +204,54 @@ safety, symptoms and calendar
   > model inference
 ```
 
-A few of the rules it encodes:
+A few of the rules that fall out of it:
 
-- **Symptoms beat the chart.** In May I woke with a sore throat while HRV and resting heart rate both looked green. Threshold was dropped anyway. Over the next days it went from "no intensity", to "no strength either", to full rest once a cough appeared. A morning later the wellness numbers were the best of the week, and they still didn't decide anything. Wellness can rebound a day or two before symptoms do.
-- **Known alcohol is not unexplained bad sleep.** A hangover still shapes today's dose, because the readiness is genuinely lower. But it's not evidence that training load is too high, so it doesn't feed into decisions about progression. Twice this spring a dip that looked like overreach turned out to be a hangover. The first time the coach had already trimmed two sessions and reverted them once I told it. The second time it had confidently ruled alcohol out, and was wrong. The lesson it logged was to ask before diagnosing. Unknown alcohol status is treated as no confounder at all, and the coach is told never to infer alcohol from the data.
-- **A positive signal doesn't add training.** Feeling fresh is not a reason to add unplanned work. Asymmetry is deliberate: it's much easier to undo training I didn't do than training I did.
-- **A known injury has a standing rule.** The hamstring currently carries one: treat a flare as an injury, and end the run if it flares early. That isn't re-litigated every morning against HRV.
+- **Symptoms beat the chart.** One morning in May I woke with a sore throat while HRV and resting heart rate both looked green. Threshold was dropped anyway, and over the next days it went from "no intensity" to full rest once a cough appeared. Meanwhile the wellness numbers had the best morning of the week. Wellness can rebound a day or two before symptoms do.
+- **The same signal can mean different things.** Bad sleep should change today's workout whatever caused it. But bad sleep from accumulated training stress is evidence that load is too high, and bad sleep from alcohol isn't. Same observation, different inference about the system underneath. The coach learned this the hard way: it twice read a hangover as overreach, and once confidently ruled alcohol out. Now it asks before diagnosing.
+- **A positive signal doesn't add training.** Feeling fresh is not a reason to add unplanned work. The asymmetry is deliberate: it's much easier to recover from training I didn't do than from training I did.
+- **A known injury has a standing rule.** A niggling hamstring gets one rule, decided in advance, rather than being renegotiated every morning against HRV.
 
-The hardest part isn't collecting more state. It's deciding which state gets to win when the replicas disagree.
+More sensor data doesn't solve any of this. The hardest part isn't collecting more state. It's deciding which state gets to win when the replicas disagree.
 
-## Some writes require a human
+## Controllers can destabilize the system
 
-The coach owns a lot. It may reshape any future planned workout in my calendar: duration, intensity, session choice. On a given morning it may adjust only today's session, only one of them, only if it's more than 45 minutes away, and only if it hasn't already been done. It can't touch completed activities, past events, race-day events or anything that isn't a workout. Larger calendar edits are previewed as a diff and applied only after I approve that exact change.
+This is where control theory becomes more useful than the distributed-systems analogy.
+
+A naive controller reacts to every reading:
+
+```text
+HRV down one morning   → cancel intervals
+HRV up next morning    → add intensity
+poor workout           → cut load
+great workout          → raise load
+```
+
+Now the plan oscillates. That's an over-sensitive controller with too much gain, and it injects noise into the athlete instead of removing it.
+
+The coach is a feedback controller with delayed, noisy measurements, so it needs the standard defences:
+
+- **Trends, not point values.** Readings are compared with a rolling baseline, so a single bad morning doesn't trigger a change.
+- **Hysteresis.** Progressing a key session takes several comparable successes. Reducing takes repeated under-performance. One missed session doesn't establish a trend. Between the two thresholds is a dead band where the answer is "hold".
+- **Minimum dwell time.** After a material change, the plan has to stay put for a few days before it can change again.
+- **Bounded steps.** One major lever per decision, each with a small maximum. Reversing direction needs a stated reason and new evidence.
+- **Explicit exceptions.** Safety signals bypass all of the above. A cough doesn't wait out a cooldown.
+
+The policy also bans two simple rules that look like control but aren't: a universal 10% weekly increase, and a fixed acute-to-chronic workload threshold. Both answer every situation with the same gain. And it names the failure mode directly: avoid both always-push and always-reduce decisions.
+
+## Who is allowed to change the desired state?
+
+The coach owns a lot. It can reshape planned workouts: duration, intensity, session choice. Same-day changes are deliberately narrow, and bigger calendar edits are shown to me as a diff before anything is written.
 
 Other changes aren't reconciliation at all. They change the desired state:
 
 ```text
-"I've decided not to race Jönköping."
+"I've decided not to do that race."
 "I want to prioritise running for six weeks."
 "This pain is different from before."
 "I'm willing to accept more injury risk for this race."
 ```
 
-Those don't belong to the controller. Races and blocks live in a version-controlled config, not in the coach's working memory; it's told to add a new race to the config rather than to its own state. Coaching principles change through a reviewed pull request with a version bump. Runtime context can't quietly override them.
+Those don't belong to the controller. Races and training blocks live in a version-controlled config, not in the coach's working memory, and its coaching principles change only through a reviewed change. Nothing it reasons about at runtime can quietly override them.
 
 That gives a clean split:
 
@@ -239,35 +264,10 @@ Athlete:  executes, and produces new state
 
 The human and the athlete are the same person, which is the one place where the analogy gets odd. On a bad morning I'm the least reliable component in the system and also the only one allowed to change its goals.
 
-## Controllers can destabilize the system
-
-This is where the analogy stops being a metaphor.
-
-A naive controller reacts to every reading:
-
-```text
-HRV down one morning   → cancel intervals
-HRV up next morning    → add intensity
-poor workout           → cut load
-great workout          → raise load
-```
-
-Now the plan oscillates. In control terms that's an over-sensitive controller with too much gain, and it injects noise into the athlete instead of removing it.
-
-My coach is a feedback controller, so it needs the standard defences, and it has them:
-
-- **Trends, not point values.** HRV and resting heart rate are compared with a seven-day median, and need at least three samples before a baseline counts. A yellow reading means HRV at or below 85% of that median; red means 70%.
-- **Hysteresis.** Progressing a key session takes three comparable successes at 95% or better of the target, plus signs that the load was absorbed. Reducing takes at least two comparable outcomes below 80%. One missed or incomplete session doesn't establish a trend. The gap between those two thresholds is a dead band where the answer is "hold".
-- **Minimum dwell time.** There's a three-day cooldown between material replans. Inside it, anything short of a red flag goes back to "hold".
-- **Bounded steps.** One major lever per decision, and each lever has a small maximum: a few minutes of duration, two percentage points of intensity, one rep. Reversing direction, from progress to reduce or back, needs a stated reason and new evidence.
-- **Explicit exceptions.** Safety signals bypass all of the above. A cough doesn't wait out a cooldown.
-
-The policy also bans two simple rules that look like control but aren't: a universal 10% weekly increase, and a fixed acute-to-chronic workload threshold. Both answer every situation with the same gain. And it names the failure mode directly: avoid both always-push and always-reduce decisions.
-
 ## Eventual consistency doesn't mean winging it
 
-The obvious objection is that this is just "train by feel" with extra vocabulary. It's the opposite. There's still a long-term goal, progression, periodization, constraints, an expected adaptation, and accumulated load that the system tracks whether I'm paying attention or not. The flexibility lives inside a deliberate control system, with written rules about what each signal is allowed to do.
+The obvious objection is that this is just "train by feel" with extra vocabulary. It's the opposite. There's still a goal, progression, periodization, constraints and accumulated load. The flexibility lives inside a deliberate control system, with written rules about what each signal is allowed to do.
 
 A good adaptive plan should be rigid about its objectives and flexible about its implementation.
 
-I still want to arrive in Jönköping next July fit enough to race the way I've planned. I just no longer expect every intermediate state to match a spreadsheet I wrote months earlier.
+I still want to arrive at the start line next summer fit enough to race the way I've planned. I just no longer expect every intermediate state to match a spreadsheet I wrote months earlier.
