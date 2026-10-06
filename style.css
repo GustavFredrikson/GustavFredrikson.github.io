@@ -1,0 +1,137 @@
+/* Shared styles. Plain CSS, system fonts, no build step. */
+
+:root {
+  --paper: #f4f0e8;
+  --ink: #1d1b18;
+  --muted: #6e675c;
+  --rule: #d9d2c4;
+  --accent: #b2411e;
+
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Charter, "Bitstream Charter", Georgia, serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --measure: 38rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #17150f;
+    --ink: #ece6d8;
+    --muted: #9a9283;
+    --rule: #332f26;
+    --accent: #e5805a;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 1.125rem/1.65 var(--serif);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.wrap {
+  width: 100%;
+  max-width: calc(var(--measure) + 3rem);
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+::selection { background: var(--accent); color: var(--paper); }
+
+a {
+  color: inherit;
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+a:hover { color: var(--accent); }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+/* Header */
+.site-header {
+  padding: 1.75rem 0;
+  font: 0.9rem/1 var(--sans);
+}
+.site-header .wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+.site-header a { text-decoration: none; }
+.site-header .home { font-weight: 600; letter-spacing: 0.01em; }
+.site-header nav { display: flex; gap: 1.5rem; color: var(--muted); }
+.site-header nav a:hover,
+.site-header nav a[aria-current="page"] { color: var(--ink); }
+.site-header nav a[aria-current="page"] {
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+}
+
+/* Main */
+main { flex: 1; padding: clamp(3rem, 12vh, 7rem) 0 4rem; }
+
+h1, h2 {
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+h1 { font-size: clamp(2.6rem, 8vw, 4.25rem); }
+h2 {
+  font: 600 0.8rem/1 var(--sans);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 3.5rem 0 1rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--rule);
+}
+
+.lede {
+  margin: 1.5rem 0 0;
+  font-size: 1.3rem;
+  line-height: 1.5;
+  color: var(--muted);
+  max-width: 30rem;
+}
+
+p { margin: 0 0 1.1em; }
+
+/* Ready for a portfolio: a list of dated entries.
+   <ul class="entries"><li><span class="when">2026</span>
+   <div><a href="…">Title</a><p>One line.</p></div></li></ul> */
+.entries { list-style: none; margin: 0; padding: 0; }
+.entries li {
+  display: grid;
+  grid-template-columns: 5rem 1fr;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+.entries .when { font: 0.85rem/2 var(--sans); color: var(--muted); font-variant-numeric: tabular-nums; }
+.entries p { margin: 0; color: var(--muted); font-size: 1rem; }
+
+/* Long-form pages (privacy, later: writing) */
+.prose h1 { font-size: clamp(2rem, 6vw, 2.75rem); margin-bottom: 1.5rem; }
+.prose .meta { font: 0.85rem/1.4 var(--sans); color: var(--muted); margin: 0 0 2rem; }
+
+/* Footer */
+.site-footer {
+  padding: 1.5rem 0 2rem;
+  font: 0.85rem/1.4 var(--sans);
+  color: var(--muted);
+}
+.site-footer .wrap { border-top: 1px solid var(--rule); padding-top: 1.25rem; }
+
+@media (max-width: 30rem) {
+  body { font-size: 1.05rem; }
+  .entries li { grid-template-columns: 1fr; gap: 0; }
+}
