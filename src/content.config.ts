@@ -1,5 +1,5 @@
 import { defineCollection } from 'astro:content';
-import { glob } from 'astro/loaders';
+import { file, glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 
 // Portfolio entries: one Markdown file per project in src/content/work/.
@@ -37,4 +37,25 @@ const notes = defineCollection({
   }),
 });
 
-export const collections = { work, notes };
+// Open-source contributions: one entry per contribution in src/content/open-source.yaml.
+// Listed on the home page; no page of their own.
+const openSource = defineCollection({
+  loader: file('./src/content/open-source.yaml'),
+  schema: z.object({
+    project: z.string(),
+    description: z.string(),
+    status: z.string(),
+    area: z.string(),
+    // Month precision is enough: 2026-10. A day is allowed but not shown; YAML
+    // reads a full date as a Date, so turn it back into a string.
+    date: z.preprocess(
+      (v) => (v instanceof Date ? v.toISOString().slice(0, 10) : v),
+      z.string().regex(/^\d{4}-\d{2}(-\d{2})?$/),
+    ),
+    url: z.string().url(),
+    linkLabel: z.string().optional(),
+    writeup: z.string().startsWith('/').optional(),
+  }),
+});
+
+export const collections = { work, notes, openSource };
