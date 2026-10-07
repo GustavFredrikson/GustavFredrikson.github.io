@@ -19,7 +19,7 @@ anubis-verification-cookie-retry:
 
 garak-langchain-serve:
   project: garak
-  description: Added a generator that lets NVIDIA’s LLM vulnerability scanner probe models and RAG chains deployed behind LangChain Serve endpoints, with unit tests.
+  description: Added a generator that lets NVIDIA’s LLM vulnerability scanner probe models and RAG chains served with LangChain Serve, with unit tests. Built for my master’s thesis, where garak couldn’t reach the chatbot I was red-teaming.
   status: Merged upstream
   area: Python · AI security
   date: 2024-04
