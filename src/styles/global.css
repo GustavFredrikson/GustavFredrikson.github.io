@@ -86,6 +86,13 @@ h1, h2, h3, p, dl, dd { margin: 0; }
 .site-header nav a:hover { color: var(--ink); }
 .header-end { display: flex; align-items: center; gap: clamp(1rem, 3vw, 2rem); }
 .wordmark { white-space: nowrap; }
+.site-header nav a { white-space: nowrap; }
+/* Too narrow for one row: keep the wordmark and toggle on top, nav below. */
+@media (max-width: 40rem) {
+  .site-header { flex-wrap: wrap; row-gap: 1rem; }
+  .header-end { display: contents; }
+  .site-header nav { order: 1; flex-basis: 100%; }
+}
 @media (max-width: 26rem) {
   .site-header { font-size: 0.875rem; }
   .site-header nav, .header-end { gap: 0.75rem; }
@@ -244,6 +251,25 @@ a.tile:hover .tile-mark { transform: translateY(-0.25rem); opacity: 0.8; }
 .tile h3 em { font-style: normal; color: var(--dim); font-weight: 400; }
 .tile-year { color: var(--dim); font-variant-numeric: tabular-nums; }
 .tile p { margin-top: 0.15rem; color: var(--dim); max-width: 46ch; }
+
+/* ---------- Open source ---------- */
+/* Rows sit directly under the section rule, like the notes list. */
+.oss-list { list-style: none; margin: -1.5rem 0 0; padding: 0; }
+.oss { display: grid; gap: 0.25rem var(--gutter); padding: 1.25rem 0; border-bottom: 1px solid var(--line); }
+.oss h3 { font-size: 1.0625rem; font-weight: 500; letter-spacing: -0.01em; }
+.oss-body p { max-width: 60ch; }
+.oss-meta { margin-top: 0.15rem; color: var(--dim); font-size: 0.9375rem; }
+.oss-meta time { white-space: nowrap; }
+.oss-links { display: flex; flex-wrap: wrap; gap: 0.25rem 1.25rem; margin-top: 0.35rem; font-size: 0.9375rem; }
+.oss-links a {
+  overflow-wrap: anywhere;
+  background: linear-gradient(var(--line), var(--line)) 0 100% / 100% 1px no-repeat;
+}
+.oss-links a::after { content: '\00a0→'; color: var(--dim); }
+.oss-links a:hover { background-image: linear-gradient(currentColor, currentColor); }
+@media (min-width: 50rem) {
+  .oss { grid-template-columns: 1fr 2fr; }
+}
 
 /* ---------- Project + long-form pages ---------- */
 .project, .page { padding-top: clamp(2.5rem, 8vh, 5rem); }

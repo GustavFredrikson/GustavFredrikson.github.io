@@ -1,10 +1,13 @@
 ---
 import Base from '../layouts/Base.astro';
 import WorkTile from '../components/WorkTile.astro';
+import Contribution from '../components/Contribution.astro';
 import { getWork } from '../lib/work';
+import { getContributions } from '../lib/open-source';
 import { site } from '../site';
 
 const work = await getWork();
+const contributions = await getContributions();
 ---
 <Base>
   <section class="hero shell">
@@ -22,6 +25,15 @@ const work = await getWork();
     <div class="grid">
       {work.map((entry, i) => <WorkTile entry={entry} index={i} />)}
     </div>
+  </section>
+
+  <section id="open-source" class="section shell">
+    <header class="section-head">
+      <h2>Open source</h2>
+    </header>
+    <ul class="oss-list">
+      {contributions.map((entry) => <Contribution entry={entry} />)}
+    </ul>
   </section>
 
   <section id="about" class="section shell split">
