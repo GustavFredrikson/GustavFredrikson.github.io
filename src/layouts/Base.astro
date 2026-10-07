@@ -7,6 +7,7 @@ interface Props { title?: string; description?: string }
 const { title, description = site.intro } = Astro.props;
 const pageTitle = title ? `${title} — ${site.name}` : site.name;
 const onHome = Astro.url.pathname === '/';
+const canonical = new URL(Astro.url.pathname, Astro.site);
 const year = new Date().getFullYear();
 ---
 <!doctype html>
@@ -19,8 +20,11 @@ const year = new Date().getFullYear();
     <meta name="color-scheme" content="light dark" />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
-    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:type" content="website" />
+    <link rel="canonical" href={canonical} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <slot name="head" />
     <script is:inline>
       // Resolve the theme before first paint: a saved choice wins, else follow the system.
       (() => {

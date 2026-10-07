@@ -8,8 +8,21 @@ import { site } from '../site';
 
 const work = await getWork();
 const contributions = await getContributions();
+
+const person = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: site.name,
+  url: Astro.site,
+  jobTitle: site.jobTitle,
+  worksFor: { '@type': 'Organization', ...site.employer },
+  alumniOf: { '@type': 'CollegeOrUniversity', ...site.alumniOf },
+  address: { '@type': 'PostalAddress', addressLocality: site.location.city, addressCountry: site.location.country },
+  sameAs: site.links.map((l) => l.href),
+};
 ---
 <Base>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(person)} />
   <section class="hero shell">
     <h1 class="reveal"><span>{site.name}.</span> <span class="dim">{site.intro}</span></h1>
     <dl class="facts reveal">
