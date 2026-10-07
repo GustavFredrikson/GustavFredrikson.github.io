@@ -54,7 +54,6 @@ const openSource = defineCollection({
     ),
     url: z.string().url(),
     linkLabel: z.string().optional(),
-    writeup: z.string().startsWith('/').optional(),
   }),
 });
 

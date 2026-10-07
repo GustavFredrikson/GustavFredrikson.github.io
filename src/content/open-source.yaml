@@ -2,22 +2,20 @@
 # Add one entry per contribution; the key is just a unique id.
 #
 #   project:     project name as shown
-#   description: one sentence, what was contributed
+#   description: one or two short sentences, what was contributed
 #   status:      e.g. Merged upstream, Accepted, Published
 #   area:        language and/or field
 #   date:        YYYY-MM (or YYYY-MM-DD)
 #   url:         strongest public source: merged PR, commit, issue, release or project page
 #   linkLabel:   optional; link text is derived from GitHub URLs, set this for anything else
-#   writeup:     optional path to a longer write-up on this site
 
 anubis-verification-cookie-retry:
   project: Anubis
-  description: Fixed false “cookies disabled” errors with a bounded server-side retry and regression tests, after hitting the bug while opening my master’s thesis on DiVA.
+  description: Fixed false “cookies disabled” errors with a bounded server-side retry and regression tests. Found while opening my master’s thesis on DiVA, which said cookies were disabled when they weren’t.
   status: Merged upstream
   area: Go · Web security
   date: 2026-10
   url: https://github.com/TecharoHQ/anubis/pull/2004
-  writeup: /notes/missing-cookie-is-not-proof/
 
 garak-langchain-serve:
   project: garak

@@ -3,7 +3,7 @@ import type { CollectionEntry } from 'astro:content';
 import { formatMonth, sourceLabel } from '../lib/open-source';
 
 interface Props { entry: CollectionEntry<'openSource'> }
-const { project, description, status, area, date, url, linkLabel, writeup } = Astro.props.entry.data;
+const { project, description, status, area, date, url, linkLabel } = Astro.props.entry.data;
 ---
 <li class="oss">
   <h3>{project}</h3>
@@ -12,7 +12,6 @@ const { project, description, status, area, date, url, linkLabel, writeup } = As
     <p class="oss-meta">{status} · {area} · <time datetime={date}>{formatMonth(date)}</time></p>
     <p class="oss-links">
       <a href={url}>{linkLabel ?? sourceLabel(url)}</a>
-      {writeup && <a href={writeup}>Write-up</a>}
     </p>
   </div>
 </li>
