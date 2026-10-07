@@ -11,7 +11,7 @@
 
 anubis-verification-cookie-retry:
   project: Anubis
-  description: Fixed false “cookies disabled” errors with a bounded server-side retry and regression tests. Found while opening my master’s thesis on DiVA, which said cookies were disabled when they weren’t.
+  description: Found a false “cookies disabled” failure while opening my master’s thesis on DiVA; fixed it with a bounded server-side retry and regression tests.
   status: Merged upstream
   area: Go · Web security
   date: 2026-10
@@ -19,7 +19,7 @@ anubis-verification-cookie-retry:
 
 garak-langchain-serve:
   project: garak
-  description: Added a generator that lets NVIDIA’s LLM vulnerability scanner probe models and RAG chains served with LangChain Serve, with unit tests. Built for my master’s thesis, where garak couldn’t reach the chatbot I was red-teaming.
+  description: Added LangServe support so garak could red-team complete RAG applications rather than only their underlying models, with unit tests.
   status: Merged upstream
   area: Python · AI security
   date: 2024-04

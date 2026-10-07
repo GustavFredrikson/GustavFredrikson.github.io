@@ -9,6 +9,10 @@ export const site = {
     "My work and side projects mostly sit around distributed systems, platform engineering and AI systems. I'm most interested in systems that have to keep state, recover from failure and run with increasing autonomy.",
     'I studied Engineering Physics at Uppsala University, where my master’s thesis looked at safeguarding LLM applications in financial services.',
   ],
+  jobTitle: 'Software Engineer',
+  employer: { name: 'Irori', url: 'https://irori.se' },
+  alumniOf: { name: 'Uppsala University', url: 'https://www.uu.se' },
+  location: { city: 'Stockholm', country: 'SE' },
   email: 'gustavfredrikson@gmail.com',
   links: [
     { label: 'GitHub', href: 'https://github.com/GustavFredrikson' },
