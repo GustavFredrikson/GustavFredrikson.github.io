@@ -293,7 +293,7 @@ a.tile:hover .tile-mark { transform: translateY(-0.25rem); opacity: 0.8; }
 .prose ul, .prose ol { padding-left: 1.2em; }
 .prose img { border-radius: 4px; margin: 2em 0; }
 .prose code { font-size: 0.9em; background: var(--surface); padding: 0.1em 0.35em; border-radius: 3px; }
-.prose pre { overflow-x: auto; background: var(--surface); padding: 1rem 1.25rem; border-radius: 4px; font-size: 0.875rem; line-height: 1.6; }
+.prose pre { overflow-x: auto; background: var(--surface); padding: 1rem 1.25rem; border-radius: 4px; font-size: 0.875rem; line-height: 1.6; tab-size: 4; }
 .prose pre code { font-size: inherit; background: none; padding: 0; border-radius: 0; }
 .prose pre .wide { display: inline-block; width: 2ch; }
 @media (min-width: 64rem) {

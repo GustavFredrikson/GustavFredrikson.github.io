@@ -12,11 +12,12 @@
 
 anubis-verification-cookie-retry:
   project: Anubis
-  description: Fixed false “cookies disabled” errors when a browser transiently drops the verification cookie, with a bounded server-side retry and regression tests.
+  description: Fixed false “cookies disabled” errors with a bounded server-side retry and regression tests, after hitting the bug while opening my master’s thesis on DiVA.
   status: Merged upstream
   area: Go · Web security
   date: 2026-10
   url: https://github.com/TecharoHQ/anubis/pull/2004
+  writeup: /notes/missing-cookie-is-not-proof/
 
 garak-langchain-serve:
   project: garak
