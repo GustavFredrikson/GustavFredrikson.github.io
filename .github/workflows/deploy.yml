@@ -5,7 +5,8 @@ on:
     paths-ignore: [README.md, CLAUDE.md, 'tools/**', '.claude/**']
   workflow_dispatch:
 permissions: { contents: read, pages: write, id-token: write }
-concurrency: { group: pages, cancel-in-progress: true }
+# Queue rather than cancel: killing an in-flight Pages deploy can leave it half-done.
+concurrency: { group: pages, cancel-in-progress: false }
 jobs:
   # Single job: build and deploy on one runner to skip a second runner startup.
   deploy:

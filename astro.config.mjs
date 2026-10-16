@@ -4,6 +4,12 @@ import sitemap from '@astrojs/sitemap';
 export default defineConfig({
   site: 'https://gustavfredrikson.se',
   integrations: [sitemap()],
-  // Code blocks take their colours from global.css so they follow light/dark mode.
-  markdown: { syntaxHighlight: false },
+  // No default colour: global.css picks --shiki-light or --shiki-dark so code
+  // follows the theme toggle, and keeps its own background.
+  markdown: {
+    shikiConfig: {
+      themes: { light: 'github-light-high-contrast', dark: 'github-dark-default' },
+      defaultColor: false,
+    },
+  },
 });
