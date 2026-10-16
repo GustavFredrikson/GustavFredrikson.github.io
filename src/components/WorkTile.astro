@@ -9,7 +9,7 @@ const n = String(index + 1).padStart(2, '0');
 <a class="tile" href={`/work/${entry.id}/`}>
   <div class="tile-media">
     {entry.data.cover
-      ? <Cover src={entry.data.cover} dark={entry.data.coverDark} widths={[640, 1040, 1400]} sizes="(min-width: 50rem) 50vw, 100vw" />
+      ? <Cover src={entry.data.cover} priority={index === 0} dark={entry.data.coverDark} widths={[640, 1040, 1400]} sizes="(min-width: 50rem) 50vw, 100vw" />
       : <span class="tile-mark">{n}</span>}
   </div>
   <div class="tile-meta">

@@ -2,12 +2,15 @@
 import Base from '../layouts/Base.astro';
 import WorkTile from '../components/WorkTile.astro';
 import Contribution from '../components/Contribution.astro';
+import NoteList from '../components/NoteList.astro';
 import { getWork } from '../lib/work';
 import { getContributions } from '../lib/open-source';
+import { getNotes } from '../lib/notes';
 import { site } from '../site';
 
 const work = await getWork();
 const contributions = await getContributions();
+const notes = (await getNotes()).slice(0, 3);
 
 const person = {
   '@context': 'https://schema.org',
@@ -38,6 +41,14 @@ const person = {
     <div class="grid">
       {work.map((entry, i) => <WorkTile entry={entry} index={i} />)}
     </div>
+  </section>
+
+  <section id="notes" class="section shell">
+    <header class="section-head">
+      <h2>Notes</h2>
+      <a href="/notes/">All notes →</a>
+    </header>
+    <NoteList notes={notes} heading="h3" />
   </section>
 
   <section id="open-source" class="section shell">

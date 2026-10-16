@@ -1,0 +1,18 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { formatDate } from '../lib/notes';
+
+interface Props { notes: CollectionEntry<'notes'>[]; heading?: 'h2' | 'h3' }
+const { notes, heading: Heading = 'h2' } = Astro.props;
+---
+<ul class="note-list">
+  {notes.map((n) => (
+    <li>
+      <a href={`/notes/${n.id}/`}>
+        <time datetime={n.data.date.toISOString().slice(0, 10)}>{formatDate(n.data.date)}</time>
+        <Heading>{n.data.title}{n.data.draft && ' (draft)'}</Heading>
+        <p>{n.data.summary}</p>
+      </a>
+    </li>
+  ))}
+</ul>
