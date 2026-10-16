@@ -2,6 +2,7 @@
 import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import { getNotes, formatDate } from '../../lib/notes';
+import { site } from '../../site';
 
 export async function getStaticPaths() {
   const notes = await getNotes();
@@ -11,8 +12,20 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 const d = entry.data;
+
+const post = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: d.title,
+  description: d.summary,
+  datePublished: d.date.toISOString().slice(0, 10),
+  url: new URL(`/notes/${entry.id}/`, Astro.site),
+  author: { '@type': 'Person', name: site.name, url: Astro.site },
+  keywords: d.tags,
+};
 ---
-<Base title={d.title} description={d.summary}>
+<Base title={d.title} description={d.summary} type="article" published={d.date}>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(post)} />
   <article class="page note shell">
     <a class="back" href="/notes/">← All notes</a>
     <h1 class="reveal">{d.title}</h1>

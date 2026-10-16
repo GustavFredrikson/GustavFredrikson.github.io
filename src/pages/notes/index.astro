@@ -9,6 +9,9 @@ const notes = await getNotes();
   <article class="page note shell">
     <h1 class="reveal">Notes</h1>
     <p class="lede reveal">Technical notes on systems I've built and the decisions behind them.</p>
+    <dl class="facts reveal">
+      <div><dt>Subscribe</dt><dd><a href="/rss.xml">RSS feed</a></dd></div>
+    </dl>
     <NoteList notes={notes} />
   </article>
 </Base>

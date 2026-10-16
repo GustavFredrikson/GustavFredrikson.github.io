@@ -1,0 +1,36 @@
+<!doctype html>
+<!--
+  Source for public/og.png, the site-wide social sharing image (1200x630).
+  Mirrors the home page hero; text comes from src/site.ts. Needs `npm install`
+  for the font. Re-render with: tools/covers/render.sh og
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face {
+    font-family: 'Schibsted Grotesk Variable';
+    font-weight: 400 900;
+    src: url('../../node_modules/@fontsource-variable/schibsted-grotesk/files/schibsted-grotesk-latin-wght-normal.woff2') format('woff2');
+  }
+  :root { --bg: #f4f4f2; --ink: #141414; --dim: #6b6b65; --line: #d8d8d3; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1200px; height: 630px; overflow: hidden; background: var(--bg); }
+  body {
+    display: flex; flex-direction: column; justify-content: space-between; padding: 76px 84px 64px;
+    color: var(--ink); font-family: 'Schibsted Grotesk Variable', system-ui, sans-serif;
+    font-feature-settings: 'ss01'; -webkit-font-smoothing: antialiased;
+  }
+  h1 { max-width: 24ch; font-size: 76px; font-weight: 500; line-height: 1.04; letter-spacing: -0.035em; text-wrap: balance; }
+  h1 span { color: var(--dim); }
+  footer {
+    display: flex; justify-content: space-between; padding-top: 22px; border-top: 1px solid var(--line);
+    font-size: 24px; font-weight: 450; color: var(--dim);
+  }
+</style>
+</head>
+<body>
+  <h1>Gustav Fredrikson. <span>I build distributed systems, infrastructure, developer tooling and autonomous agents.</span></h1>
+  <footer><span>gustavfredrikson.se</span><span>Stockholm</span></footer>
+</body>
+</html>
