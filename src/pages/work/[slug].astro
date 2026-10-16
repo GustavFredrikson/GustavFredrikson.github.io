@@ -29,7 +29,7 @@ const d = entry.data;
       {d.link && <div><dt>Link</dt><dd><a href={d.link}>Visit ↗</a></dd></div>}
     </dl>
 
-    {d.cover && <Cover class="cover" src={d.cover} dark={d.coverDark} widths={[800, 1400, 2000]} sizes="100vw" />}
+    {d.cover && <Cover class="cover" priority src={d.cover} dark={d.coverDark} widths={[800, 1400, 2000]} sizes="100vw" />}
 
     <div class="prose"><Content /></div>
 
