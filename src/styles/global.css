@@ -18,7 +18,7 @@
     --bg: #111110;
     --surface: #1b1b19;
     --ink: #ededea;
-    --dim: #8b8b84;
+    --dim: #8c8c8a;
     --line: #2b2b28;
   }
 }
@@ -26,7 +26,7 @@
   --bg: #111110;
   --surface: #1b1b19;
   --ink: #ededea;
-  --dim: #8b8b84;
+  --dim: #8c8c8a;
   --line: #2b2b28;
   color-scheme: dark;
 }
@@ -99,53 +99,35 @@ h1, h2, h3, p, dl, dd { margin: 0; }
 }
 
 .theme-toggle {
-  --knob: 1.125rem;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 2.75rem;
-  height: 1.5rem;
-  padding: 0 0.3125rem; /* centres each icon on the knob */
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: var(--surface);
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  margin: -0.25rem; /* bigger hit area without shifting the header */
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
   color: var(--dim);
   cursor: pointer;
-  transition: border-color 0.2s var(--ease), background-color 0.2s var(--ease);
+  transition: color 0.2s var(--ease);
 }
-.theme-toggle:hover { border-color: var(--dim); }
-.theme-toggle:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.theme-toggle:hover { color: var(--ink); }
+.theme-toggle:focus-visible { outline: 2px solid var(--ink); outline-offset: 0; }
 :root:not([data-theme]) .theme-toggle { visibility: hidden; } /* no JS, no toggle */
 
-/* The knob sits under the active theme's icon: sun on the left, moon on the right. */
-.theme-toggle::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 2px;
-  width: var(--knob);
-  height: var(--knob);
-  margin-top: calc(var(--knob) / -2);
-  border-radius: 50%;
-  background: var(--ink);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
-  transition: transform 0.45s var(--ease), background-color 0.2s var(--ease);
-}
-:root[data-theme='dark'] .theme-toggle::before { transform: translateX(calc(2.75rem - 2px - var(--knob) - 4px)); }
-
+/* One glyph at a time: the theme a click switches to, moon in light and sun in dark. */
 .theme-toggle svg {
-  position: relative;
-  width: 0.75rem;
-  height: 0.75rem;
-  transition: color 0.3s var(--ease), transform 0.45s var(--ease);
+  grid-area: 1 / 1;
+  width: 1rem;
+  height: 1rem;
+  stroke-width: 1.75;
+  transition: opacity 0.3s var(--ease), transform 0.45s var(--ease);
 }
 :root[data-theme='light'] .theme-toggle .sun,
-:root[data-theme='dark'] .theme-toggle .moon { color: var(--bg); }
-:root[data-theme='light'] .theme-toggle .moon { transform: rotate(-30deg); }
-:root[data-theme='dark'] .theme-toggle .sun { transform: rotate(-90deg); }
+:root[data-theme='dark'] .theme-toggle .moon { opacity: 0; transform: rotate(-90deg) scale(0.6); }
 @media (prefers-reduced-motion: reduce) {
-  .theme-toggle::before, .theme-toggle svg { transition: none; }
+  .theme-toggle svg { transition: none; }
 }
 
 .site-footer {
@@ -162,13 +144,21 @@ h1, h2, h3, p, dl, dd { margin: 0; }
 .site-footer::before { content: ''; position: absolute; top: 0; left: var(--gutter); right: var(--gutter); border-top: 1px solid var(--line); }
 
 /* ---------- Hero ---------- */
-.hero { padding-top: clamp(4rem, 14vh, 10rem); padding-bottom: clamp(3rem, 8vw, 6rem); }
+.hero { padding-top: clamp(4rem, 14vh, 10rem); padding-bottom: clamp(1rem, 3vw, 2rem); }
 .hero h1 {
-  max-width: 21ch;
-  font-size: clamp(2.25rem, 5.4vw, 4.75rem);
+  font-size: clamp(2.75rem, 6.5vw, 5.5rem);
   font-weight: 500;
-  line-height: 1.04;
-  letter-spacing: -0.035em;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
+}
+.hero-intro {
+  max-width: 44ch;
+  margin-top: clamp(1rem, 2vw, 1.5rem);
+  color: var(--dim);
+  font-size: clamp(1.25rem, 2.2vw, 1.75rem);
+  line-height: 1.3;
+  letter-spacing: -0.015em;
   text-wrap: balance;
 }
 
@@ -198,8 +188,6 @@ h1, h2, h3, p, dl, dd { margin: 0; }
   display: grid;
   grid-template-columns: 1fr;
   gap: 1rem;
-  margin-top: clamp(4rem, 9vw, 7rem);
-  padding-top: 0;
 }
 .split > h2 { padding-top: 1rem; border-top: 1px solid var(--line); }
 .split .body { font-size: clamp(1.15rem, 1.8vw, 1.5rem); line-height: 1.4; letter-spacing: -0.012em; }
@@ -287,15 +275,14 @@ a.tile:hover .tile-mark { transform: translateY(-0.25rem); opacity: 0.8; }
 .cover { width: 100%; margin-top: clamp(2.5rem, 6vw, 4rem); border-radius: 4px; }
 
 .prose { max-width: 40rem; margin-top: clamp(2.5rem, 6vw, 4rem); font-size: 1.0625rem; line-height: 1.7; }
-.page .prose { margin-left: 0; }
 .prose > * + * { margin-top: 1.1em; }
 .prose h2 { margin-top: 2.5em; font-size: 1.25rem; font-weight: 500; letter-spacing: -0.015em; }
 .prose ul, .prose ol { padding-left: 1.2em; }
 .prose img { border-radius: 4px; margin: 2em 0; }
-.prose code { font-size: 0.9em; background: var(--surface); padding: 0.1em 0.35em; border-radius: 3px; }
+.prose code { font-size: 0.9em; background: var(--surface); padding: 0.1em 0.2em; border-radius: 3px; overflow-wrap: anywhere; }
 .prose pre { overflow-x: auto; background: var(--surface); padding: 1rem 1.25rem; border-radius: 4px; font-size: 0.875rem; line-height: 1.6; }
 .prose pre:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
-.prose pre code { font-size: inherit; background: none; padding: 0; border-radius: 0; }
+.prose pre code { font-size: inherit; background: none; padding: 0; border-radius: 0; overflow-wrap: normal; }
 /* Shiki emits both themes as variables; pick the one matching the site theme. */
 .astro-code span { color: var(--shiki-light); }
 @media (prefers-color-scheme: dark) {
@@ -303,9 +290,6 @@ a.tile:hover .tile-mark { transform: translateY(-0.25rem); opacity: 0.8; }
 }
 :root[data-theme='dark'] .astro-code span { color: var(--shiki-dark); }
 .prose pre .wide { display: inline-block; width: 2ch; }
-@media (min-width: 64rem) {
-  .project .prose, .page .prose { margin-left: calc((100% - 0px) / 3 + var(--gutter) / 3); }
-}
 
 .next {
   display: flex;
