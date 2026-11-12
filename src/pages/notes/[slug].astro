@@ -17,6 +17,7 @@ export async function getStaticPaths() {
 const { entry, next } = Astro.props;
 const { Content, headings } = await render(entry);
 const d = entry.data;
+const markdown = `/notes/${entry.id}.md`;
 
 const post = {
   '@context': 'https://schema.org',
@@ -31,6 +32,7 @@ const post = {
 ---
 <Base title={d.title} description={d.summary} type="article" published={d.date}>
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(post)} />
+  <link slot="head" rel="alternate" type="text/markdown" href={markdown} />
   <article class="page note shell">
     <a class="back" href="/notes/">← All notes</a>
     <h1 class="reveal">{d.title}</h1>
@@ -39,6 +41,7 @@ const post = {
     <dl class="facts reveal">
       <div><dt>Date</dt><dd><time datetime={d.date.toISOString().slice(0, 10)}>{formatDate(d.date)}</time></dd></div>
       {d.tags.length > 0 && <div><dt>Tags</dt><dd>{d.tags.join(', ')}</dd></div>}
+      <div><dt>Source</dt><dd><a href={markdown}>Markdown</a></dd></div>
     </dl>
 
     <div class="note-body">
