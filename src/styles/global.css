@@ -363,6 +363,32 @@ a.tile:hover .tile-mark { transform: translateY(-0.25rem); opacity: 0.8; }
 .section-head a { color: var(--dim); font-size: 0.9375rem; transition: color 0.2s var(--ease); }
 .section-head a:hover { color: var(--ink); }
 
+/* Note outline: a link list before the prose in the DOM, shown in the empty
+   right side of the shell only when there is room for it. */
+.outline { display: none; font-size: 0.875rem; line-height: 1.4; }
+.outline ul { list-style: none; margin: 0; padding: 0; }
+.outline li + li { margin-top: 0.6rem; }
+.outline a { color: var(--dim); transition: color 0.2s var(--ease); }
+.outline a:hover, .outline a[aria-current] { color: var(--ink); }
+@media (min-width: 64rem) {
+  /* The grid area ends with the prose, so the sticky outline stops before the next-note link. */
+  .note-body:has(> .outline) { display: grid; grid-template-columns: minmax(0, 40rem) 1fr; column-gap: var(--gutter); }
+  .note-body > .prose { grid-area: 1 / 1; }
+  .outline {
+    display: block;
+    grid-area: 1 / 2;
+    justify-self: end;
+    align-self: start;
+    position: sticky;
+    top: 2rem;
+    width: 13rem;
+    margin-top: clamp(2.5rem, 6vw, 4rem); /* same as .prose, so the first link lines up with the text */
+  }
+  /* A long code line may still grow right, but stops a gutter short of the outline. */
+  .note .note-body:has(> .outline) .prose > pre { max-width: calc(min(var(--max), 100vw) - 3 * var(--gutter) - 13rem); }
+}
+@media print { .outline { display: none; } }
+
 /* ---------- Entrance ---------- */
 @media (prefers-reduced-motion: no-preference) {
   .reveal { animation: rise 0.9s var(--ease) both; }

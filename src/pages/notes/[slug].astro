@@ -1,6 +1,7 @@
 ---
 import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
+import NoteOutline from '../../components/NoteOutline.astro';
 import { getNotes, formatDate } from '../../lib/notes';
 import { site } from '../../site';
 
@@ -14,7 +15,7 @@ export async function getStaticPaths() {
 }
 
 const { entry, next } = Astro.props;
-const { Content } = await render(entry);
+const { Content, headings } = await render(entry);
 const d = entry.data;
 
 const post = {
@@ -40,7 +41,10 @@ const post = {
       {d.tags.length > 0 && <div><dt>Tags</dt><dd>{d.tags.join(', ')}</dd></div>}
     </dl>
 
-    <div class="prose"><Content /></div>
+    <div class="note-body">
+      <NoteOutline headings={headings} />
+      <div class="prose"><Content /></div>
+    </div>
 
     {next && next.id !== entry.id && (
       <a class="next" href={`/notes/${next.id}/`}>

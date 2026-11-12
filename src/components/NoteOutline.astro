@@ -1,0 +1,38 @@
+---
+import type { MarkdownHeading } from 'astro';
+
+interface Props {
+  headings: MarkdownHeading[];
+}
+// Notes use h2 for sections; a short note reads fine without an outline.
+const sections = Astro.props.headings.filter((h) => h.depth === 2);
+---
+{sections.length >= 3 && (
+  <nav class="outline" aria-label="On this page">
+    <ul>
+      {sections.map((h) => <li><a href={`#${h.slug}`}>{h.text}</a></li>)}
+    </ul>
+  </nav>
+)}
+
+<script>
+  // Mark the section being read: the last heading above a line 30% down the
+  // viewport, or the last one once the page can scroll no further.
+  const nav = document.querySelector('.outline');
+  if (nav) {
+    const links = [...nav.querySelectorAll('a')];
+    const targets = links.map((a) => document.getElementById(decodeURIComponent(a.hash.slice(1))));
+    const update = () => {
+      const line = innerHeight * 0.3;
+      let current = -1;
+      targets.forEach((h, i) => { if (h && h.getBoundingClientRect().top <= line) current = i; });
+      const root = document.documentElement;
+      if (current >= 0 && innerHeight + scrollY >= root.scrollHeight - 2) current = links.length - 1;
+      links.forEach((a, i) => (i === current ? a.setAttribute('aria-current', 'location') : a.removeAttribute('aria-current')));
+    };
+    // A handful of rect reads per scroll event is cheap enough to skip throttling.
+    addEventListener('scroll', update, { passive: true });
+    addEventListener('resize', update);
+    update();
+  }
+</script>
