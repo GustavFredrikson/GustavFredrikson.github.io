@@ -371,3 +371,14 @@ a.tile:hover .tile-mark { transform: translateY(-0.25rem); opacity: 0.8; }
   .reveal:nth-child(4) { animation-delay: 0.24s; }
   @keyframes rise { from { opacity: 0; transform: translateY(0.75rem); } }
 }
+
+/* ---------- Page transitions ---------- */
+/* Native cross-document view transitions: a work cover (view-transition-name
+   set in Cover.astro) morphs between the home tile and its project page.
+   Browsers without support, and reduced-motion visitors, navigate as before. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition { navigation: auto; }
+  ::view-transition-group(*) { animation-duration: 0.45s; animation-timing-function: var(--ease); }
+  /* Set by Base.astro on pagereveal: the morph is the entrance, so don't replay .reveal on top. */
+  .vt .reveal { animation: none; }
+}
