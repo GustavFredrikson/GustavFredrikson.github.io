@@ -22,12 +22,15 @@ const sections = Astro.props.headings.filter((h) => h.depth === 2);
   if (nav) {
     const links = [...nav.querySelectorAll('a')];
     const targets = links.map((a) => document.getElementById(decodeURIComponent(a.hash.slice(1))));
+    let active = -2; // matches no index, so the first update always writes
     const update = () => {
       const line = innerHeight * 0.3;
       let current = -1;
       targets.forEach((h, i) => { if (h && h.getBoundingClientRect().top <= line) current = i; });
       const root = document.documentElement;
       if (current >= 0 && innerHeight + scrollY >= root.scrollHeight - 2) current = links.length - 1;
+      if (current === active) return;
+      active = current;
       links.forEach((a, i) => (i === current ? a.setAttribute('aria-current', 'location') : a.removeAttribute('aria-current')));
     };
     // A handful of rect reads per scroll event is cheap enough to skip throttling.

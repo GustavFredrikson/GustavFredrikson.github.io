@@ -327,7 +327,7 @@ a.tile:hover .tile-mark { transform: translateY(-0.25rem); opacity: 0.8; }
 .compare-switch input:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 .compare-turn + .compare-turn { margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--line); }
 .compare dt { color: var(--dim); font-size: 0.8125rem; }
-.compare dd + div, .compare dd + dt { margin-top: 0.75rem; }
+.compare-reply, .compare dd + dt { margin-top: 0.75rem; }
 .compare-reply dd { margin-top: 0.25rem; padding: 0.75rem 1rem; background: var(--bg); border: 1px solid var(--line); border-radius: 4px; }
 .compare-verdict { margin-top: 0.35rem; color: var(--dim); font-size: 0.875rem; }
 .compare figcaption { margin-top: 1rem; color: var(--dim); font-size: 0.875rem; }
@@ -370,24 +370,27 @@ a.tile:hover .tile-mark { transform: translateY(-0.25rem); opacity: 0.8; }
 .outline li + li { margin-top: 0.6rem; }
 .outline a { color: var(--dim); transition: color 0.2s var(--ease); }
 .outline a:hover, .outline a[aria-current] { color: var(--ink); }
-@media (min-width: 64rem) {
-  /* The grid area ends with the prose, so the sticky outline stops before the next-note link. */
-  .note-body:has(> .outline) { display: grid; grid-template-columns: minmax(0, 40rem) 1fr; column-gap: var(--gutter); }
-  .note-body > .prose { grid-area: 1 / 1; }
-  .outline {
-    display: block;
-    grid-area: 1 / 2;
-    justify-self: end;
-    align-self: start;
-    position: sticky;
-    top: 2rem;
-    width: 13rem;
-    margin-top: clamp(2.5rem, 6vw, 4rem); /* same as .prose, so the first link lines up with the text */
+/* Only where the :has() grid can make room for it, and only on screen, so
+   print and older browsers keep the outline hidden and the prose full width. */
+@supports selector(:has(*)) {
+  @media screen and (min-width: 64rem) {
+    /* The grid area ends with the prose, so the sticky outline stops before the next-note link. */
+    .note-body:has(> .outline) { display: grid; grid-template-columns: minmax(0, 40rem) 1fr; column-gap: var(--gutter); }
+    .note-body > .prose { grid-area: 1 / 1; }
+    .outline {
+      display: block;
+      grid-area: 1 / 2;
+      justify-self: end;
+      align-self: start;
+      position: sticky;
+      top: 2rem;
+      width: 13rem;
+      margin-top: clamp(2.5rem, 6vw, 4rem); /* same as .prose, so the first link lines up with the text */
+    }
+    /* A long code line may still grow right, but stops a gutter short of the outline. */
+    .note .note-body:has(> .outline) .prose > pre { max-width: calc(min(var(--max), 100vw) - 3 * var(--gutter) - 13rem); }
   }
-  /* A long code line may still grow right, but stops a gutter short of the outline. */
-  .note .note-body:has(> .outline) .prose > pre { max-width: calc(min(var(--max), 100vw) - 3 * var(--gutter) - 13rem); }
 }
-@media print { .outline { display: none; } }
 
 /* ---------- Entrance ---------- */
 @media (prefers-reduced-motion: no-preference) {
@@ -405,6 +408,9 @@ a.tile:hover .tile-mark { transform: translateY(-0.25rem); opacity: 0.8; }
 @media (prefers-reduced-motion: no-preference) {
   @view-transition { navigation: auto; }
   ::view-transition-group(*) { animation-duration: 0.45s; animation-timing-function: var(--ease); }
+  /* The tile crops to 4:3 and the project page shows the full image, so both
+     cover snapshots fill the moving box and crop instead of stretching. */
+  ::view-transition-old(.work-cover), ::view-transition-new(.work-cover) { height: 100%; object-fit: cover; }
   /* Set by Base.astro on pagereveal: the morph is the entrance, so don't replay .reveal on top. */
   .vt .reveal { animation: none; }
 }

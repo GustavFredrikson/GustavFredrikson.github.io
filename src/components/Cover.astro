@@ -11,7 +11,7 @@ interface Props { src: ImageMetadata; dark?: ImageMetadata; widths: number[]; si
 const { src, dark, widths, sizes, class: className, priority, name } = Astro.props;
 // Above-the-fold covers load right away instead of lazily.
 const load = priority ? { loading: 'eager', fetchpriority: 'high' } as const : {};
-const style = name ? `view-transition-name: ${name}` : undefined;
+const style = name ? `view-transition-name: ${name}; view-transition-class: work-cover` : undefined;
 const darkImage = dark && (await getImage({ src: dark, widths, sizes }));
 ---
 {darkImage ? (
