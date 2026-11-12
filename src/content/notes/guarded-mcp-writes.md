@@ -1,5 +1,5 @@
 ---
-title: Guarding state-changing MCP tools with preview, apply, and undo
+title: Guarding state-changing MCP tools with preview, apply and undo
 summary: How I let an agent prepare changes to an external calendar without making every tool call a write, and what the design still leaves open.
 date: 2026-08-13
 tags: [MCP, Agents, Python, SQLite]
@@ -7,13 +7,13 @@ tags: [MCP, Agents, Python, SQLite]
 
 I run a small MCP server that gives an agent access to my Intervals.icu training data and calendar. Read access was simple: the agent can misread a chart, but reading changes nothing.
 
-Write access is a different trust boundary. Once a tool call can move, rewrite or delete a planned session, a wrong argument is no longer a wrong answer. It changes state somewhere else. The question became: how can an agent prepare and carry out changes to external state without every tool call being immediately destructive?
+Write access is a different trust boundary. Once a tool call can move, rewrite or delete a planned session, a wrong argument changes state somewhere else. The question became: how can an agent prepare and carry out changes to external state without every tool call being immediately destructive?
 
 ## The problem
 
 The first implementation exposed the API directly as MCP tools: `create_event`, `create_events_bulk`, `update_event`, `delete_event` and `delete_events_bulk`. They were mostly thin wrappers around the matching API calls, and the last one deleted every event in a date range.
 
-That worked, and it exposed something I hadn't thought through. "Move Thursday's session to Friday?" followed by "sure" feels like approval, but the model builds the tool arguments after that exchange. The user agreed to a sentence; the API received a payload. If the two differ (a wrong event id, a description the model decided to tidy up), nothing notices. With direct mutation tools, the model's intent and the user's authorization get folded into one tool call.
+That worked, but I hadn't thought through what approval meant. "Move Thursday's session to Friday?" followed by "sure" feels like approval, and the model builds the tool arguments only after that exchange. The user agreed to a sentence; the API received a payload. If the two differ (a wrong event id, a description the model decided to tidy up), nothing notices. With direct mutation tools, the model's intent and the user's authorization get folded into one tool call.
 
 ## Requirements
 
@@ -56,7 +56,7 @@ A preview for moving an event looks like this (synthetic data):
 }
 ```
 
-Apply takes no event data as input, only the id and the token. The payload that runs is the one stored at preview time, so the agent can't get one diff approved and then send another. The token scopes an approval obtained elsewhere; in the current implementation it does not itself prove that a human gave that approval. More on that below.
+Apply takes no event data as input, only the id and the token. The payload that runs is the one stored at preview time, so the agent can't get one diff approved and then send another. The token scopes an approval obtained elsewhere; in the current implementation it does not itself prove that a human gave that approval.
 
 ## The state machine
 
@@ -110,18 +110,18 @@ The obvious alternative was an `approved` flag that apply checks. A flag could b
 
 Instead, the preview returns a capability: `confirm_` followed by `secrets.token_urlsafe(24)`, 192 random bits. Holding it, together with the preview id, is what allows the apply. The rest comes from how it's stored:
 
-- **Hashed.** The ledger keeps only the token's SHA-256 and compares with `hmac.compare_digest`. The plaintext appears once, in the preview response, and reading the database doesn't give you a usable token.
-- **Short-lived.** Previews expire after a configurable TTL. The default is 15 minutes, and the allowed range is 1 to 60.
-- **One-shot.** A wrong token doesn't use up the preview. The right one does, whether the apply then succeeds or fails.
-- **Scoped to the configured account.** The row stores a hash of the athlete id, and apply refuses if the server is now configured for someone else.
+- The ledger keeps only the token's SHA-256 and compares with `hmac.compare_digest`. The plaintext appears once, in the preview response, and reading the database doesn't give you a usable token.
+- Previews expire after a configurable TTL. The default is 15 minutes, and the allowed range is 1 to 60.
+- A token works once. A wrong token doesn't use up the preview. The right one does, whether the apply then succeeds or fails.
+- Approval is scoped to the configured account. The row stores a hash of the athlete id, and apply refuses if the server is now configured for someone else.
 
 Read-only mode is checked *before* the claim, so turning writes off doesn't burn pending previews; a test confirms the row stays `pending`. And since rows hold event content, the ledger directory is created `0700` and the database file `0600`, which is also tested.
 
-What the token doesn't do is prove that a human said yes. It goes back to the agent in the same response as the diff. The agent is told to wait for explicit approval, and `apply_event_change` is annotated as destructive so the client can ask before running it. The token limits what an approval can authorize. It doesn't produce the approval. A stricter version would send the token out of band, to the user rather than the model, so that pasting it back *is* the approval. I haven't built that.
+The token doesn't prove that a human said yes. It goes back to the agent in the same response as the diff. The agent is told to wait for explicit approval, and `apply_event_change` is annotated as destructive so the client can ask before running it. So the token limits what an approval can authorize without producing one. A stricter version would send the token out of band, to the user rather than the model, so that pasting it back *is* the approval. I haven't built that.
 
 ## Binding approval to observed state
 
-This is the part I care about most. What a human approved was a specific mutation against a specific observed state. If that state changes before execution, the approval shouldn't authorize the mutation any more.
+A human approves a specific mutation against a specific observed state. If that state changes before execution, the approval shouldn't authorize the mutation any more.
 
 For updates and deletes, the preview fetches the current event, refuses it if it's already paired with a completed activity or marked non-editable, and snapshots a fixed set of fields (date, name, description, type, category, target, indoor flag, duration, load, tags, colour, pairing, editability) with a canonical hash:
 
@@ -147,7 +147,7 @@ if canonical_hash(event_snapshot(current)) != \
         "create a fresh preview")
 ```
 
-One failure case I specifically wanted to avoid:
+A failure case I wanted to avoid:
 
 1. The agent previews moving "Tempo 3×10 min" from Thursday to Friday. The diff shows a single field, `start_date_local`.
 2. I approve it.
@@ -157,7 +157,7 @@ One failure case I specifically wanted to avoid:
 
 The stale patch, "set the date to Friday", would still have been valid against the new event. But I approved moving the session I saw, not whatever is at that event id now. Failing closed costs one extra preview. Tests cover both variants and assert that no update call is made.
 
-This is a time-of-check/time-of-use problem: the check is a person reading a diff, the use is a write minutes later. Rechecking at apply time shrinks the window from however long the person took to answer to the gap between one GET and the following write. It doesn't close it. My client doesn't make conditional writes, so an edit that lands inside that gap would still go through. The snapshot also covers only the fields listed above, and a change to any other field won't invalidate a preview. Creates have no prior state to bind to, so a create preview is bound only to its own payload.
+This is a time-of-check/time-of-use problem: the check is a person reading a diff, the use is a write minutes later. Rechecking at apply time shrinks the window from however long the person took to answer to the gap between one GET and the following write, but it doesn't close it: my client doesn't make conditional writes, so an edit that lands inside that gap would still go through. The snapshot also covers only the fields listed above, and a change to any other field won't invalidate a preview. Creates have no prior state to bind to, so a create preview is bound only to its own payload.
 
 ## Undo
 
@@ -165,7 +165,7 @@ A successful apply returns a second capability, an `undo_` token, hashed and sin
 
 Undo runs the same state check in reverse: it re-fetches each affected event and compares it with the snapshot recorded after the apply. If someone edited the event since, undo refuses rather than overwrite their edit, and the row moves to `undo_failed`.
 
-**Undo is compensation, not rollback.** No transaction spans my ledger and the remote API, so undo is a new write that tries to recreate the earlier state:
+Undo is compensation, not rollback. No transaction spans my ledger and the remote API, so undo is a new write that tries to recreate the earlier state:
 
 - Undoing a create deletes the event.
 - Undoing an update writes back the previous values of only the fields the change touched.
@@ -176,14 +176,14 @@ Apply compensates the same best-effort way, deleting a created workout that fail
 
 ## What this does not solve
 
-- **Whether the proposal is any good.** The workflow ensures the change that runs is the one previewed, not that it was sensible.
-- **Careless approval.** A diff only helps if someone reads it, and a bulk preview of up to 25 events is easy to skim.
-- **A leaked or misused token.** The agent holds the token. Whoever holds an unexpired one can apply that single preview, exactly as stored, once. That is a smaller blast radius, but it is still access.
-- **Authentication and authorization.** The server uses stdio and runs with the permissions of whoever starts it, API key included. The ledger is not an access-control system.
-- **The remaining race window** and unsnapshotted fields, described above.
-- **Ambiguous outcomes.** Local state can't always tell whether the remote write happened. `apply_failed` doesn't always mean nothing changed: an update that fails its read-back check has already been written. Reconciling that is manual, as is recovering a row stuck in `applying`.
-- **Side effects outside the calendar.** If a workout synced to a device before it was undone, the undo doesn't follow it there.
+- Whether the proposal is any good. The workflow ensures the change that runs is the one previewed, not that it was sensible.
+- Careless approval. A diff only helps if someone reads it, and a bulk preview of up to 25 events is easy to skim.
+- A leaked or misused token. The agent holds the token. Whoever holds an unexpired one can apply that single preview, exactly as stored, once. That is a smaller blast radius, but it is still access.
+- Authentication and authorization. The server uses stdio and runs with the permissions of whoever starts it, API key included. The ledger is not an access-control system.
+- The remaining race window and unsnapshotted fields, described above.
+- Ambiguous outcomes. Local state can't always tell whether the remote write happened. `apply_failed` doesn't always mean nothing changed: an update that fails its read-back check has already been written. Reconciling that is manual, as is recovering a row stuck in `applying`.
+- Side effects outside the calendar. If a workout synced to a device before it was undone, the undo doesn't follow it there.
 
 ## Current takeaway
 
-For state-changing agent tools, I now prefer treating approval as a narrow, expiring capability tied to an observed state. The agent can propose freely. Execution requires a capability for one stored mutation, and that capability becomes useless after one claim, after expiry, or when the state the proposal was based on no longer matches. I prefer that to treating "the user said yes somewhere in the conversation" as authorization.
+For state-changing agent tools, I now prefer a narrow, expiring capability tied to an observed state over "the user said yes somewhere in the conversation" as authorization. The agent can propose freely. Execution requires a capability for one stored mutation, and that capability becomes useless after one claim, after expiry, or when the state the proposal was based on no longer matches.

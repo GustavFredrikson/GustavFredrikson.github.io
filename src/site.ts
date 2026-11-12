@@ -6,7 +6,7 @@ export const site = {
   // Short paragraphs for the About section.
   about: [
     "I'm a software engineer in Stockholm, currently at Irori.",
-    "My work and side projects mostly sit around distributed systems, platform engineering and AI systems. I'm most interested in systems that have to keep state, recover from failure and run with increasing autonomy.",
+    "My work and side projects are mostly distributed systems, platform engineering and AI systems. I'm most interested in systems that have to keep state, recover from failure and run with increasing autonomy.",
     'I studied Engineering Physics at Uppsala University, where my master’s thesis looked at safeguarding LLM applications in financial services.',
   ],
   jobTitle: 'Software Engineer',

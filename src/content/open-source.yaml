@@ -19,7 +19,7 @@ anubis-verification-cookie-retry:
 
 garak-langchain-serve:
   project: garak
-  description: Added LangServe support so garak could red-team complete RAG applications rather than only their underlying models, with unit tests.
+  description: Added LangServe support with unit tests, so garak could red-team complete RAG applications rather than only their underlying models.
   status: Merged upstream
   area: Python · AI security
   date: 2024-04
