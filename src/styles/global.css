@@ -382,3 +382,35 @@ a.tile:hover .tile-mark { transform: translateY(-0.25rem); opacity: 0.8; }
   /* Set by Base.astro on pagereveal: the morph is the entrance, so don't replay .reveal on top. */
   .vt .reveal { animation: none; }
 }
+
+/* ---------- Print ---------- */
+@media print {
+  @page { margin: 2cm 1.8cm; }
+  /* Paper is white: force the light tokens. This selector matches every page and
+     outweighs both dark-token rules, so a saved or system dark theme prints light. */
+  :root:root:is([data-theme], :not([data-theme])) {
+    --bg: #f4f4f2;
+    --surface: #e9e9e6;
+    --ink: #141414;
+    --dim: #696963;
+    --line: #d8d8d3;
+    color-scheme: light;
+  }
+  body { background: none; }
+  :root:root:is([data-theme], :not([data-theme])) .astro-code span { color: var(--shiki-light); }
+
+  .reveal { animation: none; }
+  .skip, .site-header nav, .theme-toggle, .back, .next, .site-footer a { display: none; }
+  .site-header, .project, .page { padding-top: 0; }
+  .site-footer { margin-top: 3rem; }
+
+  .prose { max-width: none; }
+  .prose pre { white-space: pre-wrap; overflow: visible; }
+  .prose > pre { width: auto; max-width: none; }
+  .prose pre code { overflow-wrap: anywhere; }
+  pre, table, tr, img, figure { break-inside: avoid; }
+  h1, h2, h3 { break-after: avoid; }
+
+  /* Paper can't follow a link: print where external ones go. */
+  .prose a[href^='http']::after { content: ' (' attr(href) ')'; color: var(--dim); overflow-wrap: anywhere; }
+}
