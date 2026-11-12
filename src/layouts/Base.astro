@@ -17,6 +17,9 @@ const { title, description = site.intro, image = '/og.png', type = 'website', pu
 const pageTitle = title ? `${title} — ${site.name}` : site.name;
 const defaultImage = image === '/og.png';
 const onHome = Astro.url.pathname === '/';
+// Mark the Notes link on the notes index ('page') and on a note ('true').
+const path = Astro.url.pathname;
+const notesCurrent = path === '/notes/' || path === '/notes' ? 'page' : path.startsWith('/notes/') ? 'true' : undefined;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const year = new Date().getFullYear();
 ---
@@ -84,7 +87,7 @@ const year = new Date().getFullYear();
         <nav aria-label="Main">
           <a href={onHome ? '#work' : '/#work'}>Work</a>
           <a href={onHome ? '#open-source' : '/#open-source'}>Open source</a>
-          <a href="/notes/">Notes</a>
+          <a href="/notes/" aria-current={notesCurrent}>Notes</a>
           <a href={onHome ? '#about' : '/#about'}>About</a>
         </nav>
       </div>

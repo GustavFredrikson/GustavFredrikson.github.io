@@ -6,10 +6,14 @@ import { site } from '../../site';
 
 export async function getStaticPaths() {
   const notes = await getNotes();
-  return notes.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+  // Notes are newest first, so "next" is the one before it in time, wrapping at the end.
+  return notes.map((entry, i) => ({
+    params: { slug: entry.id },
+    props: { entry, next: notes[(i + 1) % notes.length] },
+  }));
 }
 
-const { entry } = Astro.props;
+const { entry, next } = Astro.props;
 const { Content } = await render(entry);
 const d = entry.data;
 
@@ -37,5 +41,12 @@ const post = {
     </dl>
 
     <div class="prose"><Content /></div>
+
+    {next && next.id !== entry.id && (
+      <a class="next" href={`/notes/${next.id}/`}>
+        <span>Next note</span>
+        <strong>{next.data.title} →</strong>
+      </a>
+    )}
   </article>
 </Base>
