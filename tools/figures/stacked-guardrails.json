@@ -1016,5 +1016,147 @@
     ]
    }
   }
- }
+ },
+ "frontier": [
+  {
+   "F": 0.01,
+   "single": 0.369,
+   "pair": 0.536,
+   "single_fpr": 0.01,
+   "pair_fpr": 0.009
+  },
+  {
+   "F": 0.02,
+   "single": 0.444,
+   "pair": 0.589,
+   "single_fpr": 0.02,
+   "pair_fpr": 0.023
+  },
+  {
+   "F": 0.03,
+   "single": 0.52,
+   "pair": 0.666,
+   "single_fpr": 0.023,
+   "pair_fpr": 0.026
+  },
+  {
+   "F": 0.04,
+   "single": 0.577,
+   "pair": 0.719,
+   "single_fpr": 0.035,
+   "pair_fpr": 0.037
+  },
+  {
+   "F": 0.05,
+   "single": 0.608,
+   "pair": 0.771,
+   "single_fpr": 0.046,
+   "pair_fpr": 0.049
+  },
+  {
+   "F": 0.06,
+   "single": 0.63,
+   "pair": 0.797,
+   "single_fpr": 0.054,
+   "pair_fpr": 0.063
+  },
+  {
+   "F": 0.07,
+   "single": 0.646,
+   "pair": 0.819,
+   "single_fpr": 0.066,
+   "pair_fpr": 0.071
+  },
+  {
+   "F": 0.08,
+   "single": 0.667,
+   "pair": 0.84,
+   "single_fpr": 0.078,
+   "pair_fpr": 0.082
+  },
+  {
+   "F": 0.09,
+   "single": 0.685,
+   "pair": 0.849,
+   "single_fpr": 0.088,
+   "pair_fpr": 0.092
+  },
+  {
+   "F": 0.1,
+   "single": 0.695,
+   "pair": 0.866,
+   "single_fpr": 0.1,
+   "pair_fpr": 0.105
+  },
+  {
+   "F": 0.11,
+   "single": 0.701,
+   "pair": 0.878,
+   "single_fpr": 0.114,
+   "pair_fpr": 0.115
+  },
+  {
+   "F": 0.12,
+   "single": 0.712,
+   "pair": 0.891,
+   "single_fpr": 0.129,
+   "pair_fpr": 0.121
+  },
+  {
+   "F": 0.13,
+   "single": 0.717,
+   "pair": 0.902,
+   "single_fpr": 0.137,
+   "pair_fpr": 0.129
+  },
+  {
+   "F": 0.14,
+   "single": 0.734,
+   "pair": 0.912,
+   "single_fpr": 0.149,
+   "pair_fpr": 0.139
+  },
+  {
+   "F": 0.15,
+   "single": 0.752,
+   "pair": 0.923,
+   "single_fpr": 0.158,
+   "pair_fpr": 0.15
+  },
+  {
+   "F": 0.16,
+   "single": 0.762,
+   "pair": 0.929,
+   "single_fpr": 0.161,
+   "pair_fpr": 0.16
+  },
+  {
+   "F": 0.17,
+   "single": 0.782,
+   "pair": 0.937,
+   "single_fpr": 0.167,
+   "pair_fpr": 0.17
+  },
+  {
+   "F": 0.18,
+   "single": 0.795,
+   "pair": 0.942,
+   "single_fpr": 0.178,
+   "pair_fpr": 0.181
+  },
+  {
+   "F": 0.19,
+   "single": 0.808,
+   "pair": 0.949,
+   "single_fpr": 0.191,
+   "pair_fpr": 0.193
+  },
+  {
+   "F": 0.2,
+   "single": 0.818,
+   "pair": 0.95,
+   "single_fpr": 0.198,
+   "pair_fpr": 0.202
+  }
+ ]
 }
