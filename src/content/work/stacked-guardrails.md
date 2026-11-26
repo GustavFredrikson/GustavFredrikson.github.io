@@ -114,11 +114,13 @@ Adaptive evasions are tuned to the guards they were found against and mostly don
 | attacker queries… | filler | got past within 300 queries | median queries to get past |
 |---|---|---|---|
 | PIGuard + Qwen3Guard | with | 54 of 54 | 18.5 |
+| Granite Guardian alone | with | 49 of 54 | 43 |
 | all four guards | with | **50 of 54** | **57** |
 | PIGuard + Qwen3Guard | without | 41 of 54 | 38 |
+| Granite Guardian alone | without | 9 of 54 | 130 |
 | all four guards | without | **9 of 54** | **169** |
 
-ProtectAI's classifier never flagged these requests, so in practice this was a three-guard stack. Granite Guardian was the last guard to give way, after a median of 50 queries. With filler, the extra layer tripled the attacker's cost but did not stop the attack. Unqueried, Granite Guardian blocked 50 of the 54 evasions. Once the attacker could query it, the stack held only 4 of the 54 requests. Without filler the picture changes: the stack held 45 of 54 requests, and the attacker got past Granite Guardian at all on only 10 of them. I have not attacked Granite Guardian on its own, so this may say more about that one guard than about stacking. Either way, the cheap filler trick is what decides the outcome, and a stack that holds against careful edits still falls to it.
+ProtectAI's classifier never flagged these requests, so in practice this was a three-guard stack. Granite Guardian was the last guard to give way, after a median of 50 queries. With filler, the extra layer tripled the attacker's cost but did not stop the attack. Unqueried, Granite Guardian blocked 50 of the 54 evasions. Once the attacker could query it, the stack held only 4 of the 54 requests. Without filler the stack held 45 of 54 requests. To check whether that came from stacking or from Granite Guardian, I attacked Granite Guardian on its own as well. It held exactly as many, 45 of 54, and with filler it fell on 49 against the stack's 50. So the robustness came from that one guard. The other three added a few queries to the attacker's cost and nothing measurable to the outcome. The attack is randomised, too: without filler, Granite Guardian alone and the full stack fell on different requests, 9 each but only 4 in common, so single-request results are noisy. Granite Guardian is the most robust guard tested here, against both static and adaptive attacks, and also the slowest and, at its default threshold, the one that blocks the most legitimate users. The cheap filler trick still beats it.
 
 ## What is new here, and what isn't
 
@@ -131,13 +133,44 @@ Correlated failure between safety layers has also been measured recently, for re
 - **Cross-vendor transfer of adaptive attacks.** Prompts that beat one vendor's pair are still blocked 69 to 90% of the time by another vendor's pair, while an attacker who can query the extra guard gets past it on 50 of 54 requests.
 - **Pairs against single guards at equal cost.** At the same false-positive budget, the best pair catches 13 to 19 points more attacks than the best single guard.
 
+## How to deploy this
+
+If you are putting open guards in front of a model, this is what the results support. All numbers are from this benchmark mix. Your own users will differ, so step 3 matters most.
+
+**1. Stack one harm guard with one injection classifier, not two of a kind.** Two guards of the same kind add about half a layer. A mixed pair works like two or more independent guards and, at the same false-positive budget, catches 13 to 19 points more than any single guard.
+
+**2. Choose the false-positive budget first, then the thresholds.** Vendor defaults are not tuned for stacking. Re-tuned on this benchmark mix, these were the best pairs (catch rates measured on held-out halves):
+
+| false-positive budget | pair | block if score above | attacks caught |
+|---|---|---|---|
+| 2% | PIGuard + Qwen3Guard 0.6B | 0.9995 and 0.991 | 59% |
+| 5% | Granite Guardian 3.1 2B + PIGuard | 0.991 and 0.945 | 77% |
+| 10% | Granite Guardian 3.1 2B + PIGuard | 0.958 and 0.873 | 87% |
+| about 18% (defaults) | PIGuard + Qwen3Guard 0.6B | vendor defaults | 92% |
+
+Scores are each guard's probability of "attack" or "unsafe". All three guards are free to use without a licence request. Ordinary requests were almost never blocked at any of these budgets. The cost fell on prompts near sensitive topics: at the 5% budget the pair flagged 11% of the over-refusal probes and 9% of the benign twins of harmful requests.
+
+**3. Re-tune on your own traffic.** Collect a few hundred real prompts from each kind of user you serve, including the ones that sound sensitive but aren't (for a bank, fraud and security questions), and a set of attacks. Re-pick the thresholds on half and check them on the other half. The thresholds above are a starting point, not a setting to copy.
+
+**4. Run the guards in parallel.** An OR-stack's latency is then that of its slowest guard. On a 4-core CPU, PIGuard took about 0.13 seconds a prompt, Qwen3Guard about 0.4 seconds with its fixed prompt cached, and Granite Guardian about 2.6 seconds, so Granite Guardian needs a GPU in production.
+
+**5. Don't hand the attacker a feedback loop.** Every adaptive attack here needed tens of queries, each starting from a blocked prompt. Not revealing scores, rate-limiting, and alerting on bursts of near-identical blocked prompts all raise that cost. *Likely, not tested here.* A guard the attacker can't probe, such as one that only reviews logs, blocked most evasions it never saw.
+
+**6. Treat the guards as one layer, not the defence.** Against an attacker who can probe the stack, a stack was as strong as its most robust guard: the extra guards added queries, not protection. An attacker who pads the prompt with unrelated text got past every guard combination tested. Output filtering, least-privilege tools and monitoring still matter.
+
+### What is proven, likely and untested
+
+- **Shown on this data:** a mixed pair beats any single guard at equal false-positive cost. Two guards of the same kind add little. Static evasions that beat one vendor's guards mostly don't transfer. Against an adaptive attacker, a stack is about as strong as its most robust guard. Score-guided attackers with filler beat every stack tested.
+- **Likely, but not measured:** rate limits and hidden scores slow adaptive attackers. Similar results for guard versions released after these.
+- **Untested:** hosted guard services (Lakera, Azure Prompt Shields and others), non-English prompts, multi-turn conversations, indirect injection through documents and tools, and whether a blocked-then-evaded prompt actually gets a harmful answer from the model behind the guards.
+
 ## Limits
 
 This is a pilot, and the numbers should be read as directions rather than final values. Since the first version of this page I have compared guards at matched false-positive rates, added bootstrap intervals and leave-one-source-out checks, scored HarmBench, attacked 72 more requests and tested an attacker who queries a third vendor's guard. What remains:
 
 - The benchmark mix still decides the pooled rates, and the effective-layer gap between mixed and same-kind pairs is mostly about covering different attack families. Within one family it is small.
 - Success means getting past the guards, not getting a harmful answer from a model.
-- The joint attack used Granite Guardian and ProtectAI, not Meta's pair, and Granite Guardian was not attacked on its own, because the Meta models need a licence token this run didn't have. Six guards, not eleven, were scored on HarmBench for the same reason.
+- The joint attack used Granite Guardian and ProtectAI, not Meta's pair, because the Meta models need a licence token this run didn't have. Six guards, not eleven, were scored on HarmBench for the same reason.
 - Thresholds for the equal-cost comparison were picked on one half of this benchmark mix and tested on the other half, so they still fit this mix of prompts. A deployment with different users would need its own tuning.
 
 ## What's next
