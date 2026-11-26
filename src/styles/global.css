@@ -343,6 +343,51 @@ a.tile:hover .tile-mark { transform: translateY(-0.25rem); opacity: 0.8; }
   .compare-switch { display: none; }
 }
 
+/* Inline SVG charts on work pages (drawn by tools/figures/*.py). Colours are
+   tokens so the charts follow the theme; series hues are validated for
+   colour-vision deficiency on both surfaces. */
+.prose .fig { margin: 2em 0 0; }
+.fig {
+  --series-1: #257de0;
+  --series-2: #f47230;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .fig { --series-1: #338ced; --series-2: #e76624; }
+}
+:root[data-theme='dark'] .fig { --series-1: #338ced; --series-2: #e76624; }
+.fig svg { display: block; width: 100%; height: auto; overflow: visible; font-family: var(--font); }
+.fig text { fill: var(--ink); font-size: 12px; }
+.fig .label { font-weight: 500; }
+.fig .note, .fig .tick { fill: var(--dim); font-weight: 400; }
+.fig .grid { stroke: var(--line); stroke-width: 1; }
+.fig .ref { stroke: var(--dim); stroke-width: 1; stroke-dasharray: 3 3; }
+.fig .median { stroke: var(--ink); stroke-width: 2; stroke-linecap: round; }
+.fig .dot { stroke: var(--bg); stroke-width: 2; fill: var(--dim); }
+.fig .dot.mixed { fill: var(--series-1); }
+.fig .dot.ppl { fill-opacity: 0.45; }
+.fig .dot:hover { stroke: var(--ink); }
+.fig .line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.fig .line.s1 { stroke: var(--series-1); }
+.fig .line.s2 { stroke: var(--series-2); }
+.fig .line.pair { stroke: var(--ink); stroke-width: 2.5; }
+.fig .hit { fill: transparent; }
+.fig .hit:hover { fill: var(--ink); fill-opacity: 0.15; }
+.fig-grid { display: grid; grid-template-columns: 1fr; gap: 1.75rem 2rem; }
+.fig-legend { display: flex; flex-wrap: wrap; gap: 0.25rem 1.5rem; margin-bottom: 1.25rem; font-size: 0.875rem; color: var(--dim); }
+.fig-legend span { display: inline-flex; align-items: center; gap: 0.5rem; }
+.fig-legend i { display: inline-block; width: 1.25rem; height: 2px; border-radius: 1px; background: var(--ink); }
+.fig-legend i.s1 { background: var(--series-1); }
+.fig-legend i.s2 { background: var(--series-2); }
+.fig-legend i.pair { height: 3px; }
+.fig figcaption { margin-top: 1rem; color: var(--dim); font-size: 0.875rem; line-height: 1.5; }
+/* The prose column is narrow on a phone: enlarge the text inside the scaled-down chart. */
+@media (max-width: 30rem) {
+  .fig-layers text { font-size: 17px; }
+}
+@media (min-width: 40rem) {
+  .fig-grid { grid-template-columns: 1fr 1fr; }
+}
+
 /* ---------- Notes ---------- */
 .note h1 { font-size: clamp(2.25rem, 5vw, 4rem); line-height: 1.04; letter-spacing: -0.035em; max-width: 20ch; }
 /* Note titles are sentences, so the next-note link is set smaller than the next-project one. */
