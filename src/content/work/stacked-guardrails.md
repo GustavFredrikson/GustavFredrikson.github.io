@@ -11,6 +11,13 @@ coverDark: ../../assets/work/stacked-guardrails-dark.png
 
 In my [master's thesis](/work/llm-safeguards-thesis/) I put several layers of safeguards around a bank's customer-service chatbot and measured what each one added. Two years on, the layered setup has become standard advice: put an input classifier in front of the model, add a second one from another vendor, and trust that what one misses the other catches. That last step quietly assumes the layers fail independently. This project tests the assumption on the open guard models people actually deploy, and then asks what happens when the attacker knows the stack.
 
+<figure class="fig">
+<video controls preload="metadata" playsinline poster="/media/guardrail-film-poster.jpg" width="1280" height="720" style="display: block; width: 100%; max-width: 100%; height: auto; border-radius: 4px; background: var(--surface);">
+<source src="/media/guardrail-film.mp4" type="video/mp4">
+</video>
+<figcaption>The result in 60 seconds: four guards of the same kind share their blind spots, four of mixed kinds cover each other's gaps. Music: “drifting stardust” by Efilheim (CC0).</figcaption>
+</figure>
+
 ## The question
 
 If guard A misses 30% of attacks and guard B misses 30%, the pair misses 9% only if their misses are unrelated. If both guards learned the same blind spots, the pair might still miss close to 30%, and the second guard costs latency and false positives while adding little. I wanted three numbers for real guard products: how much a second guard adds, what it costs in wrongly blocked users, and whether the gain survives an attacker who adapts.
