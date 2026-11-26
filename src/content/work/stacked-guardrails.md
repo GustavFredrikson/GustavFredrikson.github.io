@@ -109,14 +109,16 @@ Then I took every prompt that got past one pair and scored it with the other ven
 | PIGuard + Qwen3Guard, with filler (54) | **69%** by Llama Guard 3 or Prompt Guard 2 |
 | PIGuard + Qwen3Guard, without filler (41) | 83% |
 
-Adaptive evasions are tuned to the guards they were found against and mostly don't carry over. That is a different and more encouraging kind of diversity than the static one: it suggests a defender gains real robustness from guards the attacker cannot query, such as a private or rotated layer, even when every public layer has been beaten. So I tested an attacker who can query more of the stack. Llama Guard and Prompt Guard need a licence token I didn't have in this run, so the extra guards were IBM's Granite Guardian and ProtectAI's classifier. Before any attack on it, Granite Guardian alone blocked 50 of the 54 prompts that had beaten PIGuard + Qwen3Guard. Then the attacker queried all four guards at once, on the same 54 requests, with filler allowed:
+Adaptive evasions are tuned to the guards they were found against and mostly don't carry over. That is a different and more encouraging kind of diversity than the static one: it suggests a defender gains real robustness from guards the attacker cannot query, such as a private or rotated layer, even when every public layer has been beaten. So I tested an attacker who can query more of the stack. Llama Guard and Prompt Guard need a licence token I didn't have in this run, so the extra guards were IBM's Granite Guardian and ProtectAI's classifier. Before any attack on it, Granite Guardian alone blocked 50 of the 54 prompts that had beaten PIGuard + Qwen3Guard. Then the attacker queried all four guards at once, on the same 54 requests:
 
-| attacker queries… | got past within 300 queries | median queries to get past |
-|---|---|---|
-| PIGuard + Qwen3Guard | 54 of 54 | 18.5 |
-| PIGuard + Qwen3Guard + Granite Guardian + ProtectAI | **50 of 54** | **57** |
+| attacker queries… | filler | got past within 300 queries | median queries to get past |
+|---|---|---|---|
+| PIGuard + Qwen3Guard | with | 54 of 54 | 18.5 |
+| all four guards | with | **50 of 54** | **57** |
+| PIGuard + Qwen3Guard | without | 41 of 54 | 38 |
+| all four guards | without | **9 of 54** | **169** |
 
-ProtectAI's classifier never flagged these requests, so in practice this was a three-guard stack. Granite Guardian was the last guard to give way, after a median of 50 queries. The extra layer tripled the attacker's cost, but it did not stop the attack. Unqueried, Granite Guardian blocked 50 of the 54 evasions. Once the attacker could query it, the stack held only 4 of the 54 requests.
+ProtectAI's classifier never flagged these requests, so in practice this was a three-guard stack. Granite Guardian was the last guard to give way, after a median of 50 queries. With filler, the extra layer tripled the attacker's cost but did not stop the attack. Unqueried, Granite Guardian blocked 50 of the 54 evasions. Once the attacker could query it, the stack held only 4 of the 54 requests. Without filler the picture changes: the stack held 45 of 54 requests, and the attacker got past Granite Guardian at all on only 10 of them. I have not attacked Granite Guardian on its own, so this may say more about that one guard than about stacking. Either way, the cheap filler trick is what decides the outcome, and a stack that holds against careful edits still falls to it.
 
 ## What is new here, and what isn't
 
@@ -135,9 +137,9 @@ This is a pilot, and the numbers should be read as directions rather than final 
 
 - The benchmark mix still decides the pooled rates, and the effective-layer gap between mixed and same-kind pairs is mostly about covering different attack families. Within one family it is small.
 - Success means getting past the guards, not getting a harmful answer from a model.
-- The joint attack used Granite Guardian and ProtectAI, not Meta's pair, because the Meta models need a licence token this run didn't have. Six guards, not eleven, were scored on HarmBench for the same reason.
+- The joint attack used Granite Guardian and ProtectAI, not Meta's pair, and Granite Guardian was not attacked on its own, because the Meta models need a licence token this run didn't have. Six guards, not eleven, were scored on HarmBench for the same reason.
 - Thresholds for the equal-cost comparison were picked on one half of this benchmark mix and tested on the other half, so they still fit this mix of prompts. A deployment with different users would need its own tuning.
 
 ## What's next
 
-The next steps are the joint attack with Meta's guards included, WildJailbreak as a second large attack set, and checking whether prompts that get past the guards actually get a harmful answer from a model. So far the answer to whether diverse layers buy robustness or only time is: mostly time, unless the attacker can't query them.
+The next steps are the joint attack with Meta's guards included, WildJailbreak as a second large attack set, and checking whether prompts that get past the guards actually get a harmful answer from a model. So far the answer to whether diverse layers buy robustness or only time is: mostly time against an attacker who pads the prompt with filler, unless the attacker can't query them.
