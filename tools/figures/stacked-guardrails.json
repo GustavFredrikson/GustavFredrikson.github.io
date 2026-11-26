@@ -1,5 +1,5 @@
 {
- "source": "Copied from the guardrails-pilot result files (pairs_neff.csv, summary.json, asr_curves_both_pairs.csv), 25 Nov 2026.",
+ "source": "Copied from the guardrails-pilot result files (pairs_neff.csv, summary.json, asr_curves_both_pairs.csv), 25 Nov 2026. frontier: guardrails-pilot/limits/frontier_curve.json, 26 Nov 2026.",
  "guards": {
   "deepset": {
    "tpr": 0.746,
