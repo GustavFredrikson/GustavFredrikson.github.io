@@ -120,7 +120,44 @@ def attack():
             'With filler, the stacked pair falls almost as fast as its stronger guard alone.</figcaption></figure>')
 
 
-FIGS = {'layers': layers, 'attack': attack}
+# ---------- Figure 3: best pair vs best single guard at the same false-positive budget ----------
+def frontier():
+    W, H, L, R, T, B = 560, 300, 44, 540, 24, 252
+    X = lambda f: L + f / 0.20 * (R - L)
+    Y = lambda t: B - (t - 0.3) / 0.7 * (B - T)
+    c = D['frontier']
+    o = [f'<svg viewBox="0 0 {W} {H}" role="img" aria-labelledby="fig-frontier-t">',
+         '<title id="fig-frontier-t">Share of attacks caught by the best single guard and the best pair of guards, '
+         'when each may flag at most a given share of benign prompts</title>']
+    for t in (0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0):
+        o.append(f'<line x1="{L}" x2="{R}" y1="{Y(t):.1f}" y2="{Y(t):.1f}" class="grid"/>')
+        o.append(f'<text x="{L - 6}" y="{Y(t) + 4:.1f}" class="tick" text-anchor="end">{int(t * 100)}%</text>')
+    for f in (0, 0.05, 0.10, 0.15, 0.20):
+        o.append(f'<text x="{X(f):.1f}" y="{B + 16}" class="tick" text-anchor="middle">{int(f * 100)}%</text>')
+    o.append(f'<text x="{(L + R) / 2:.1f}" y="{B + 34}" class="note" text-anchor="middle">false-positive budget: share of benign prompts flagged</text>')
+    for key, cls, label in (('single', 's2', 'Best single guard'), ('pair', 's1', 'Best pair')):
+        pts = [(r['F'], r[key]) for r in c]
+        o.append(f'<polyline points="{' '.join(f'{X(f):.1f},{Y(t):.1f}' for f, t in pts)}" class="line {cls}"/>')
+        for f, t in pts:
+            tip = f'{label} at a {pct(f)} false-positive budget: catches {pct(t)} of attacks (held-out)'
+            o.append(f'<circle cx="{X(f):.1f}" cy="{Y(t):.1f}" r="7" class="hit"><title>{esc(tip)}</title></circle>')
+    for a, b in (('piguard', 'qwen3guard'), ('llamaguard3_1b', 'promptguard2_86m')):
+        q = next(p for p in D['pairs'] if p['a'] == a and p['b'] == b)
+        tip = f"{NAME[a]} + {NAME[b]} at default thresholds: catches {pct(q['tpr'])}, flags {pct(q['fpr'])}"
+        o.append(f'<circle cx="{X(q["fpr"]):.1f}" cy="{Y(q["tpr"]):.1f}" r="5" class="dot"><title>{esc(tip)}</title></circle>')
+    o.append(f'<text x="{R}" y="{Y(0.872):.1f}" class="note" text-anchor="end">two best pairs at</text>')
+    o.append(f'<text x="{R}" y="{Y(0.842):.1f}" class="note" text-anchor="end">default thresholds</text>')
+    o.append('</svg>')
+    legend = ('<div class="fig-legend" aria-hidden="true"><span><i class="s2"></i>Best single guard</span>'
+              '<span><i class="s1"></i>Best pair of guards</span></div>')
+    return ('<figure class="fig">' + legend + ''.join(o) +
+            '<figcaption>Each guard’s threshold was re-tuned so that the guard, or the stacked pair, flags at most the given share of the 1,189 benign prompts. '
+            'Thresholds were picked on a random half of the prompts and measured on the other half, averaged over 10 splits. '
+            'At every budget the best pair catches 13 to 19 points more attacks than the best single guard. '
+            'Grey dots: the two best pairs at their vendors’ default thresholds.</figcaption></figure>')
+
+
+FIGS = {'layers': layers, 'attack': attack, 'frontier': frontier}
 text = MD.read_text()
 for name, fn in FIGS.items():
     svg = fn()
