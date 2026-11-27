@@ -45,7 +45,7 @@ Across all 55 pairs, the kind of guard matters more than the brand. Two injectio
 
 The best pairs are both of the mixed kind. PIGuard with Qwen3Guard catches 92.4% of attacks, and Meta's own combination of Llama Guard 3 1B with Prompt Guard 2 86M catches 91.2%. The strongest single guard, Granite Guardian, catches 87.4% on its own, so a well-chosen pair of small models beats it. Stacking more guards keeps raising the catch rate but with fast-diminishing returns: all 11 together catch 99.9%.
 
-How solid is the split? Resampling the prompts (bootstrap, 500 rounds) gives tight intervals for the medians: 1.43 to 1.49 for two injection classifiers, 1.66 to 1.73 for two harm guards, and 2.33 to 2.50 for mixed pairs. Dropping any one attack source, or weighting all six sources equally, moves the mixed median between 2.10 and 2.46 and the same-kind medians between 1.39 and 1.85, so no single benchmark carries the result. One qualification: much of the mixed pairs' advantage comes from covering different attack families. Within a single source, such as the in-the-wild jailbreaks or the Gandalf injections, mixed pairs score about 1.75 against about 1.5 for two injection classifiers. On plain harmful requests both kinds of pair score about 1.9. Mixed pairs rise above 2 mainly because each kind of guard catches whole families the other misses. HarmBench's 300 harmful behaviours, scored by the six guards that need no licence agreement, are a single family of direct requests, and there the gap is small, as that predicts: a median of 2.02 for mixed pairs against 1.87 for two injection classifiers.
+How solid is the split? Resampling the prompts (bootstrap, 500 rounds) gives tight intervals for the medians: 1.43 to 1.49 for two injection classifiers, 1.66 to 1.73 for two harm guards, and 2.33 to 2.50 for mixed pairs. Dropping any one attack source, or weighting all six sources equally, moves the mixed median between 2.10 and 2.46 and the same-kind medians between 1.39 and 1.85, so no single benchmark carries the result. One qualification: much of the mixed pairs' advantage comes from covering different attack families. Within a single source, such as the in-the-wild jailbreaks or the Gandalf injections, mixed pairs score about 1.75 against about 1.5 for two injection classifiers. On plain harmful requests both kinds of pair score about 1.9. Mixed pairs rise above 2 mainly because each kind of guard catches whole families the other misses. HarmBench's 300 harmful behaviours, scored by eight of the eleven guards, are a single family of direct requests, and there the gap is small, as that predicts: a median of 1.97 for mixed pairs against 1.87 for two injection classifiers.
 
 ## What stacking costs
 
@@ -109,18 +109,27 @@ Then I took every prompt that got past one pair and scored it with the other ven
 | PIGuard + Qwen3Guard, with filler (54) | **69%** by Llama Guard 3 or Prompt Guard 2 |
 | PIGuard + Qwen3Guard, without filler (41) | 83% |
 
-Adaptive evasions are tuned to the guards they were found against and mostly don't carry over. That is a different and more encouraging kind of diversity than the static one: it suggests a defender gains real robustness from guards the attacker cannot query, such as a private or rotated layer, even when every public layer has been beaten. So I tested an attacker who can query more of the stack. Llama Guard and Prompt Guard need a licence token I didn't have in this run, so the extra guards were IBM's Granite Guardian and ProtectAI's classifier. Before any attack on it, Granite Guardian alone blocked 50 of the 54 prompts that had beaten PIGuard + Qwen3Guard. Then the attacker queried all four guards at once, on the same 54 requests:
+Adaptive evasions are tuned to the guards they were found against and mostly don't carry over. That is a different and more encouraging kind of diversity than the static one: it suggests a defender gains real robustness from guards the attacker cannot query, such as a private or rotated layer, even when every public layer has been beaten. So I tested an attacker who can query more of the stack, starting with both vendors' pairs at once: PIGuard, Qwen3Guard, Llama Guard 3 and Prompt Guard 2, on the same 54 requests.
 
 | attacker queries… | filler | got past within 300 queries | median queries to get past |
 |---|---|---|---|
 | PIGuard + Qwen3Guard | with | 54 of 54 | 18.5 |
-| Granite Guardian alone | with | 49 of 54 | 43 |
-| all four guards | with | **50 of 54** | **57** |
+| both pairs (four guards) | with | **53 of 54** | **34** |
 | PIGuard + Qwen3Guard | without | 41 of 54 | 38 |
-| Granite Guardian alone | without | 9 of 54 | 130 |
-| all four guards | without | **9 of 54** | **169** |
+| both pairs (four guards) | without | **33 of 54** | **79** |
 
-ProtectAI's classifier never flagged these requests, so in practice this was a three-guard stack. Granite Guardian was the last guard to give way, after a median of 50 queries. With filler, the extra layer tripled the attacker's cost but did not stop the attack. Unqueried, Granite Guardian blocked 50 of the 54 evasions. Once the attacker could query it, the stack held only 4 of the 54 requests. Without filler the stack held 45 of 54 requests. To check whether that came from stacking or from Granite Guardian, I attacked Granite Guardian on its own as well. It held exactly as many, 45 of 54, and with filler it fell on 49 against the stack's 50. So the robustness came from that one guard. The other three added a few queries to the attacker's cost and nothing measurable to the outcome. The attack is randomised, too: without filler, Granite Guardian alone and the full stack fell on different requests, 9 each but only 4 in common, so single-request results are noisy. Granite Guardian is the most robust guard tested here, against both static and adaptive attacks, and also the slowest and, at its default threshold, the one that blocks the most legitimate users. The cheap filler trick still beats it.
+The diversity that looked so useful in the transfer test mostly disappears once the attacker can query it. With filler, the four-guard stack fell on 53 of 54 requests and the attacker needed about twice as many queries. Without filler it held 21 requests instead of 13, a real but modest gain. The filler for this run was a fresh sample of the same Alpaca tasks, so the with-filler numbers are comparable but not identical in setup.
+
+I also tried a third vendor, IBM's Granite Guardian, together with ProtectAI's classifier. ProtectAI never flagged these requests, so in practice this was PIGuard + Qwen3Guard + Granite Guardian. Unqueried, Granite Guardian blocked 50 of the 54 prompts that had beaten PIGuard + Qwen3Guard. Attacked directly:
+
+| attacker queries… | filler | got past within 300 queries | median queries to get past |
+|---|---|---|---|
+| Granite Guardian alone | with | 49 of 54 | 43 |
+| PIGuard + Qwen3Guard + Granite Guardian + ProtectAI | with | **50 of 54** | **57** |
+| Granite Guardian alone | without | 9 of 54 | 130 |
+| PIGuard + Qwen3Guard + Granite Guardian + ProtectAI | without | **9 of 54** | **169** |
+
+Without filler this stack held 45 of 54 requests, but Granite Guardian on its own held exactly as many. The robustness came from that one guard. The other three added a few queries to the attacker's cost and nothing measurable to the outcome. The attack is randomised, too: without filler, Granite Guardian alone and the stack fell on different requests, 9 each but only 4 in common, so single-request results are noisy. Granite Guardian is the most robust guard tested here, against both static and adaptive attacks. It is also the slowest and, at its default threshold, the one that blocks the most legitimate users. The cheap filler trick still beats it.
 
 ## What is new here, and what isn't
 
@@ -130,7 +139,7 @@ Correlated failure between safety layers has also been measured recently, for re
 
 - **Effective layers for public guard products.** One comparable number for all 55 pairs of 11 openly available guards, showing that the guard's kind predicts how much it adds.
 - **Joint false positives by population.** What a stack costs, split by the kind of user it turns away, instead of one pooled rate.
-- **Cross-vendor transfer of adaptive attacks.** Prompts that beat one vendor's pair are still blocked 69 to 90% of the time by another vendor's pair, while an attacker who can query the extra guard gets past it on 50 of 54 requests.
+- **Cross-vendor transfer of adaptive attacks.** Prompts that beat one vendor's pair are still blocked 69 to 90% of the time by another vendor's pair, but an attacker who queries both pairs gets past all four guards on 53 of 54 requests.
 - **Pairs against single guards at equal cost.** At the same false-positive budget, the best pair catches 13 to 19 points more attacks than the best single guard.
 
 ## How to deploy this
@@ -166,13 +175,13 @@ Scores are each guard's probability of "attack" or "unsafe". All three guards ar
 
 ## Limits
 
-This is a pilot, and the numbers should be read as directions rather than final values. Since the first version of this page I have compared guards at matched false-positive rates, added bootstrap intervals and leave-one-source-out checks, scored HarmBench, attacked 72 more requests and tested an attacker who queries a third vendor's guard. What remains:
+This is a pilot, and the numbers should be read as directions rather than final values. Since the first version of this page I have compared guards at matched false-positive rates, added bootstrap intervals and leave-one-source-out checks, scored HarmBench, attacked 72 more requests and tested attackers who query both vendors' pairs or a third vendor's guard. What remains:
 
 - The benchmark mix still decides the pooled rates, and the effective-layer gap between mixed and same-kind pairs is mostly about covering different attack families. Within one family it is small.
 - Success means getting past the guards, not getting a harmful answer from a model.
-- The joint attack used Granite Guardian and ProtectAI, not Meta's pair, because the Meta models need a licence token this run didn't have. Six guards, not eleven, were scored on HarmBench for the same reason.
+- The joint attacks covered 54 requests and one attack method. ShieldGemma, Prompt Guard 2 22M and the perplexity filter were not scored on HarmBench.
 - Thresholds for the equal-cost comparison were picked on one half of this benchmark mix and tested on the other half, so they still fit this mix of prompts. A deployment with different users would need its own tuning.
 
 ## What's next
 
-The next steps are the joint attack with Meta's guards included, WildJailbreak as a second large attack set, and checking whether prompts that get past the guards actually get a harmful answer from a model. So far the answer to whether diverse layers buy robustness or only time is: mostly time against an attacker who pads the prompt with filler, unless the attacker can't query them.
+The next steps are hosted guard services (Lakera, Azure Prompt Shields) on the same tests, WildJailbreak as a second large attack set, and checking whether prompts that get past the guards actually get a harmful answer from a model. So far the answer to whether diverse layers buy robustness or only time is: mostly time against an attacker who pads the prompt with filler, unless the attacker can't query them.
