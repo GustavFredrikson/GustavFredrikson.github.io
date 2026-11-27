@@ -111,7 +111,7 @@ Then I took every prompt that got past one pair and scored it with the other ven
 
 Adaptive evasions are tuned to the guards they were found against and mostly don't carry over. That is a different and more encouraging kind of diversity than the static one: it suggests a defender gains real robustness from guards the attacker cannot query, such as a private or rotated layer, even when every public layer has been beaten. So I tested an attacker who can query more of the stack, starting with both vendors' pairs at once: PIGuard, Qwen3Guard, Llama Guard 3 and Prompt Guard 2, on the same 54 requests.
 
-| attacker queries… | filler | got past within 300 queries | median queries to get past |
+| attacker queries… | filler | got past within 300 queries | median queries, successful attacks |
 |---|---|---|---|
 | PIGuard + Qwen3Guard | with | 54 of 54 | 18.5 |
 | both pairs (four guards) | with | **53 of 54** | **34** |
@@ -122,7 +122,7 @@ The diversity that looked so useful in the transfer test mostly disappears once 
 
 I also tried a third vendor, IBM's Granite Guardian, together with ProtectAI's classifier. ProtectAI never flagged these requests, so in practice this was PIGuard + Qwen3Guard + Granite Guardian. Unqueried, Granite Guardian blocked 50 of the 54 prompts that had beaten PIGuard + Qwen3Guard. Attacked directly:
 
-| attacker queries… | filler | got past within 300 queries | median queries to get past |
+| attacker queries… | filler | got past within 300 queries | median queries, successful attacks |
 |---|---|---|---|
 | Granite Guardian alone | with | 49 of 54 | 43 |
 | PIGuard + Qwen3Guard + Granite Guardian + ProtectAI | with | **50 of 54** | **57** |
@@ -146,7 +146,7 @@ Correlated failure between safety layers has also been measured recently, for re
 
 If you are putting open guards in front of a model, this is what the results support. All numbers are from this benchmark mix. Your own users will differ, so step 3 matters most.
 
-**1. Stack one harm guard with one injection classifier, not two of a kind.** Two guards of the same kind add about half a layer. A mixed pair works like two or more independent guards and, at the same false-positive budget, catches 13 to 19 points more than any single guard.
+**1. Stack one harm guard with one injection classifier, not two of a kind.** Two guards of the same kind add about half a layer. On a mix of attack types, a mixed pair works like about 2.4 independent guards, mostly because each kind catches families the other misses. At the same false-positive budget it catches 13 to 19 points more than any single guard.
 
 **2. Choose the false-positive budget first, then the thresholds.** Vendor defaults are not tuned for stacking. Re-tuned on this benchmark mix, these were the best pairs (catch rates measured on held-out halves):
 
